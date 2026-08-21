@@ -21,9 +21,14 @@ Una tarea o *user story* se considera "Terminada" cuando cumple con lo siguiente
 
 ### Política de Uso de IA
 **El uso de IA generativa está permitido y es esperado en este equipo.**
-*   **Declaración:** Toda contribución generada u optimizada por IA debe estar explícitamente declarada en el *commit message*.
-*   **Auditoría:** El código generado será auditado por el equipo en las revisiones de código.
-*   **Penalización:** Copiar código o contenido generado por IA sin comprender su funcionamiento será estrictamente penalizado.
+*   **Transparencia:** El uso de IA generativa está permitido y es esperado, pero debe declararse obligatoriamente en los mensajes de commit. Esto garantiza la honestidad en el equipo y facilita rastrear el origen de cada componente en el repositorio.  
+*   **Cero copias ciegas:** Copiar y pegar código generado por IA sin comprender su funcionamiento lógico será estrictamente penalizado. Cada integrante debe ser capaz de explicar su solución línea por línea, ya que el pensamiento crítico es irremplazable.
+*   **Auditoría obligatoria:** Toda contribución que haya sido asistida por Inteligencia Artificial será auditada por el equipo durante el proceso de Code Review. Esta revisión grupal asegura que el código cumpla con los estándares de calidad antes de integrarse al producto final.
+*   **Privacidad estricta:** Queda absolutamente prohibido ingresar datos reales de estudiantes, contraseñas o API keys en los prompts de la IA. Al desarrollar una plataforma para menores, protegeremos la privacidad utilizando exclusivamente datos ficticios y de prueba.
+*   Responsabilidad total: El desarrollador que envía el Pull Request asume el cien por ciento de la responsabilidad sobre el código entregado. La IA opera únicamente como un asistente, por lo que el autor humano debe responder por el rendimiento y la seguridad.
+*   **Seguridad:** Asumimos por defecto que la IA puede sufrir alucinaciones o introducir vulnerabilidades ocultas. Por ello, todo código automatizado debe atravesar y superar rigurosamente nuestros filtros de QA y escaneos de seguridad.
+*   **Uso recomendado:** Fomentamos el uso estratégico de la IA para agilizar tareas repetitivas, crear bases de código (boilerplates) y generar datos de prueba. Esto nos permite concentrar nuestra energía intelectual en la arquitectura y las decisiones complejas del proyecto.
+
 
 ### Acuerdos de Trabajo y Comunicación
 *   **Canal Principal:** Discord (Canal: `#equipo-aulaviva-dev`).
