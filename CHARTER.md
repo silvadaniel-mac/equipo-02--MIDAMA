@@ -9,7 +9,7 @@ Modernizar la experiencia de aprendizaje escolar en la Región Metropolitana med
 *   **DevSecOps Lead:** Allen Ramirez — *Encargado de pipelines, seguridad de datos sensibles y observabilidad.*
 *   **AI/Data Lead:** Miguel Briceño — *Responsable del motor RAG, features de IA generativa y optimización de costos LLM.*
 *   **QA Lead:** Ian Godoy — *A cargo de la estrategia de pruebas, calidad y cumplimiento normativo.*
-*   **DevSecOps:** Matias Riquelme — *Apoyo en desarrollo de features y en implementaciones full-stack.*
+*   **DevSecOps:** Matias Riquelme — *Apoyo en desarrollo de seguridad de datos sensibles y observabilidad.*
 
 ### Definition of Done (DoD) Preliminar
 Una tarea o *user story* se considera "Terminada" cuando cumple con lo siguiente:
