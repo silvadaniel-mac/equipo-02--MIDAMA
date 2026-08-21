@@ -1,1 +1,22 @@
+### ADR-0001 — Estrategia de aislamiento Multi-Tenant
+Estado: Aceptada | Fecha: 21/08/2026
+Contexto
+AulaViva es un SaaS multi-tenant utilizado por distintos colegios. El Charter exige aislamiento absoluto de los datos por colegio, considerando además información sensible de estudiantes.
+Alternativas
+•	BD por colegio: mayor aislamiento, pero alto costo y complejidad. 
+•	Esquema por colegio: buen aislamiento, pero dificulta mantenimiento y escalabilidad. 
+•	BD compartida + tenant_id: menor complejidad, costo y facilita el escalamiento. 
+Decisión
+Implementar base de datos compartida con aislamiento lógico mediante tenant_id.
+•	Cada registro tendrá tenant_id. 
+•	El tenant se obtiene desde la autenticación, no desde el frontend. 
+•	Todas las operaciones CRUD validarán pertenencia al tenant. 
+•	Se prohibirán relaciones y accesos entre colegios. 
+Consecuencias
+Beneficios: menor costo, arquitectura simple y escalable.
+Riesgo: un error de autorización podría provocar fuga de datos.
+Mitigación: pruebas automatizadas que verifiquen que Colegio A nunca pueda acceder, modificar o eliminar datos de Colegio B.
+Justificación
+Esta decisión transforma el requisito de “aislamiento absoluto” definido en el Charter en una propiedad concreta, verificable y escalable de la arquitectura.
+
 
