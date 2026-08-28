@@ -23,7 +23,10 @@ para resolver dudas y mejorar mi comprensión de las materias.
 
 ### Prioridad MoSCoW
 
-✅ **Obligatorio**
+**Obligatorio**
+
+**Justificación:**  
+Es una funcionalidad principal de AulaViva, ya que el proyecto busca integrar un tutor IA contextualizado al currículum MINEDUC. Esta característica entrega el principal valor diferencial de la plataforma al permitir un aprendizaje personalizado.
 
 ---
 
@@ -50,7 +53,10 @@ para reducir el tiempo de preparación de pruebas y mejorar el proceso educativo
 
 ### Prioridad MoSCoW
 
-✅ **Obligatorio**
+**Obligatorio**
+
+**Justificación:**  
+Forma parte del alcance mínimo del producto, ya que permite a los docentes automatizar parte del proceso evaluativo y mejorar la eficiencia en la gestión del aprendizaje.
 
 ---
 
@@ -77,7 +83,10 @@ para organizar la plataforma educativa de forma segura.
 
 ### Prioridad MoSCoW
 
-✅ **Obligatorio**
+**Obligatorio**
+
+**Justificación:**  
+Es necesaria para el funcionamiento de la plataforma, ya que permite administrar usuarios y controlar los permisos de acceso. Además, contribuye a la seguridad y correcta organización de la información educativa.
 
 ---
 
@@ -104,7 +113,10 @@ para participar activamente en su proceso educativo y apoyarlo oportunamente.
 
 ### Prioridad MoSCoW
 
-🟡 **Importante, pero no crítico**
+**Importante, pero no crítico**
+
+**Justificación:**  
+Entrega valor al proceso educativo al permitir que los apoderados acompañen el avance del estudiante. Sin embargo, no es indispensable para la primera versión funcional del sistema, por lo que puede desarrollarse después de las funcionalidades principales del MVP.
 
 ---
 
@@ -131,4 +143,7 @@ para proteger la información de estudiantes y cumplir requisitos de seguridad.
 
 ### Prioridad MoSCoW
 
-✅ **Obligatorio**
+**Obligatorio**
+
+**Justificación:**  
+Es un requisito fundamental debido al manejo de datos sensibles de estudiantes y establecimientos. La seguridad, el aislamiento de información entre tenants y el control de accesos son necesarios para garantizar la protección de datos dentro de AulaViva.
