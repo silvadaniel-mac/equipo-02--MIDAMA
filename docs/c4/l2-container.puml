@@ -1,0 +1,130 @@
+@startuml
+
+skinparam dpi 600
+scale 2
+
+skinparam defaultFontName Arial
+skinparam defaultFontSize 18
+skinparam wrapWidth 250
+
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+
+title AulaViva - C4 Nivel 2 - Diagrama de Contenedores
+
+
+' Personas externas
+
+Person(usuario, "Usuarios AulaViva",
+"Estudiantes, docentes, apoderados y administradores")
+
+
+System_Ext(mineduc, "MINEDUC",
+"Referencia curricular educativa")
+
+System_Ext(email, "Servicio de Notificaciones",
+"Correo y alertas académicas")
+
+
+
+System_Boundary(aulaviva, "AulaViva") {
+
+
+Container(web,
+"Aplicación Web",
+"React / Next.js",
+"Interfaz utilizada por estudiantes, docentes, apoderados y administradores")
+
+
+Container(api,
+"Backend API",
+"Node.js + NestJS",
+"Gestiona lógica de negocio, comunicación entre módulos y reglas del sistema")
+
+
+Container(auth,
+"Servicio de Autenticación",
+"JWT + RBAC",
+"Control de usuarios, roles y permisos")
+
+
+Container(tutorIA,
+"Tutor IA",
+"RAG + LLM",
+"Responde preguntas utilizando contenidos educativos contextualizados")
+
+
+Container(evaluaciones,
+"Motor de Evaluaciones",
+"IA Generativa",
+"Genera evaluaciones automáticas y procesa resultados")
+
+
+Container(db,
+"Base de Datos Multi-Tenant",
+"PostgreSQL",
+"Almacena usuarios, colegios, cursos, notas y evaluaciones")
+
+
+Container(queue,
+"Cola de Procesamiento",
+"RabbitMQ",
+"Gestiona procesos asíncronos y tareas pesadas")
+
+
+}
+
+
+' Relaciones usuarios
+
+Rel(usuario,
+web,
+"Utiliza")
+
+
+' Relaciones internas
+
+Rel(web,
+api,
+"Consume API REST")
+
+
+Rel(api,
+auth,
+"Valida identidad y permisos")
+
+
+Rel(api,
+tutorIA,
+"Solicita respuestas IA")
+
+
+Rel(api,
+evaluaciones,
+"Genera evaluaciones")
+
+
+Rel(api,
+db,
+"Lee y almacena datos")
+
+
+Rel(api,
+queue,
+"Envía procesos asíncronos")
+
+
+' Externos
+
+Rel(api,
+mineduc,
+"Consulta información curricular")
+
+
+Rel(queue,
+email,
+"Envía notificaciones")
+
+
+@enduml
