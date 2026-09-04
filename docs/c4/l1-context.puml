@@ -1,0 +1,82 @@
+@startuml
+!include <C4/C4_Context>
+
+title AulaViva - C4 Nivel 1 - Diagrama de Contexto
+
+
+Person(estudiante,
+"Estudiante",
+"Consulta contenidos educativos, utiliza Tutor IA y revisa evaluaciones")
+
+
+Person(docente,
+"Docente",
+"Gestiona cursos, crea evaluaciones y consulta resultados")
+
+
+Person(apoderado,
+"Apoderado",
+"Visualiza avance académico y rendimiento del estudiante")
+
+
+Person(coordinador,
+"Coordinador académico",
+"Administra cursos, usuarios y configuración del establecimiento")
+
+
+Person(sostenedor,
+"Sostenedor",
+"Gestiona establecimientos y acceso multi-tenant")
+
+
+System(aulaviva,
+"AulaViva",
+"Plataforma educativa SaaS con inteligencia artificial para colegios")
+
+
+System_Ext(mineduc,
+"MINEDUC",
+"Referencia curricular y estándares educativos")
+
+
+System_Ext(notificaciones,
+"Servicio de Notificaciones",
+"Servicio externo para envío de correos y alertas")
+
+
+Rel(estudiante,
+aulaviva,
+"Consulta contenidos y utiliza Tutor IA")
+
+
+Rel(docente,
+aulaviva,
+"Gestiona cursos y evaluaciones")
+
+
+Rel(apoderado,
+aulaviva,
+"Consulta seguimiento académico")
+
+
+Rel(coordinador,
+aulaviva,
+"Administra usuarios y configuración")
+
+
+Rel(sostenedor,
+aulaviva,
+"Administra establecimientos")
+
+
+Rel(aulaviva,
+mineduc,
+"Consulta referencias curriculares")
+
+
+Rel(aulaviva,
+notificaciones,
+"Envía alertas y avisos académicos")
+
+
+@enduml
