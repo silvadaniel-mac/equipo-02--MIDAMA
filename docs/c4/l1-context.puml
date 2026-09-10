@@ -1,82 +1,42 @@
-@startuml
-!include <C4/C4_Context>
+@startuml AulaViva_C4_L1
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
 title AulaViva - C4 Nivel 1 - Diagrama de Contexto
 
 
-Person(estudiante,
-"Estudiante",
-"Consulta contenidos educativos, utiliza Tutor IA y revisa evaluaciones")
+Person(estudiante, "Estudiante", "Consulta contenidos, utiliza Tutor IA y revisa evaluaciones")
+
+Person(docente, "Docente", "Gestiona cursos, crea evaluaciones y revisa resultados")
+
+Person(apoderado, "Apoderado", "Consulta rendimiento académico")
+
+Person(coordinador, "Coordinador académico", "Administra cursos, usuarios y configuración")
+
+Person(sostenedor, "Sostenedor", "Gestiona establecimientos y acceso multi-tenant")
 
 
-Person(docente,
-"Docente",
-"Gestiona cursos, crea evaluaciones y consulta resultados")
+System(aulaviva, "AulaViva", "Plataforma educativa SaaS con inteligencia artificial")
 
 
-Person(apoderado,
-"Apoderado",
-"Visualiza avance académico y rendimiento del estudiante")
+System_Ext(mineduc, "MINEDUC", "Estándares educativos y referencias curriculares")
+
+System_Ext(email, "Servicio Email", "Envío de correos y alertas")
 
 
-Person(coordinador,
-"Coordinador académico",
-"Administra cursos, usuarios y configuración del establecimiento")
+Rel(estudiante, aulaviva, "Utiliza")
 
+Rel(docente, aulaviva, "Administra contenido")
 
-Person(sostenedor,
-"Sostenedor",
-"Gestiona establecimientos y acceso multi-tenant")
+Rel(apoderado, aulaviva, "Consulta información")
 
+Rel(coordinador, aulaviva, "Configura plataforma")
 
-System(aulaviva,
-"AulaViva",
-"Plataforma educativa SaaS con inteligencia artificial para colegios")
+Rel(sostenedor, aulaviva, "Administra colegios")
 
+Rel(aulaviva, mineduc, "Consulta referencias")
 
-System_Ext(mineduc,
-"MINEDUC",
-"Referencia curricular y estándares educativos")
-
-
-System_Ext(notificaciones,
-"Servicio de Notificaciones",
-"Servicio externo para envío de correos y alertas")
-
-
-Rel(estudiante,
-aulaviva,
-"Consulta contenidos y utiliza Tutor IA")
-
-
-Rel(docente,
-aulaviva,
-"Gestiona cursos y evaluaciones")
-
-
-Rel(apoderado,
-aulaviva,
-"Consulta seguimiento académico")
-
-
-Rel(coordinador,
-aulaviva,
-"Administra usuarios y configuración")
-
-
-Rel(sostenedor,
-aulaviva,
-"Administra establecimientos")
-
-
-Rel(aulaviva,
-mineduc,
-"Consulta referencias curriculares")
-
-
-Rel(aulaviva,
-notificaciones,
-"Envía alertas y avisos académicos")
+Rel(aulaviva, email, "Envía notificaciones")
 
 
 @enduml
