@@ -1,18 +1,18 @@
 # Checklist 12-Factor App - AulaViva
 
-## Auditoría Cloud Native
+## Auditoría Cloud Native aplicada a AulaViva
 
 | Factor | Estado | Acción | Responsable |
 |---|---|---|---|
-| 1. Codebase | Cumple | Mantener una única base de código versionada en GitHub con control de cambios. | Equipo Desarrollo |
-| 2. Dependencies | Cumple | Gestionar dependencias mediante archivos declarativos (package.json, requirements.txt). | Backend |
-| 3. Config | Parcial | Separar configuraciones mediante variables de entorno (.env) para cada ambiente. | Backend / Cloud |
-| 4. Backing Services | Cumple | Utilizar servicios externos configurables como PostgreSQL, almacenamiento y APIs mediante URLs. | Arquitectura |
-| 5. Build, Release, Run | Parcial | Implementar separación entre construcción, liberación y ejecución mediante pipeline CI/CD. | DevOps |
-| 6. Processes | Cumple | Mantener servicios stateless evitando almacenar sesiones en memoria local. | Backend |
-| 7. Port Binding | Cumple | Exponer la aplicación mediante puertos definidos por el servicio cloud. | Backend |
-| 8. Concurrency | Parcial | Permitir escalamiento horizontal del backend según demanda. | Cloud |
-| 9. Disposability | Cumple | Configurar inicio rápido y cierre controlado de servicios. | Cloud |
-| 10. Dev/Prod Parity | Parcial | Mantener ambientes de desarrollo y producción con configuraciones similares. | Equipo Desarrollo |
-| 11. Logs | Cumple | Gestionar logs como streams para monitoreo centralizado. | Cloud |
-| 12. Admin Processes | Cumple | Ejecutar tareas administrativas mediante procesos controlados y automatizados. | Equipo Desarrollo |
+| 1. Codebase | Cumple | Mantener frontend, backend y servicios IA versionados en GitHub mediante repositorio controlado. | Equipo Desarrollo |
+| 2. Dependencies | Cumple | Gestionar dependencias con archivos declarativos como package.json y requirements.txt. | Backend |
+| 3. Config | Parcial | Implementar variables de entorno para credenciales AWS, base de datos, APIs externas y configuración por ambiente. | Backend / Cloud |
+| 4. Backing Services | Cumple | Utilizar servicios externos como Amazon RDS, Amazon S3, Amazon SES y OpenSearch mediante configuraciones externas. | Arquitectura |
+| 5. Build, Release, Run | Parcial | Crear pipeline CI/CD para separar construcción de imágenes, despliegue y ejecución en ECS Fargate. | DevOps |
+| 6. Processes | Cumple | Mantener Backend API y Tutor IA como servicios stateless para permitir escalamiento horizontal. | Backend |
+| 7. Port Binding | Cumple | Exponer la API mediante puertos definidos dentro de los contenedores desplegados en ECS. | Backend |
+| 8. Concurrency | Parcial | Configurar escalamiento automático de tareas ECS según carga de usuarios y solicitudes IA. | Cloud |
+| 9. Disposability | Cumple | Configurar contenedores con inicio rápido y cierre controlado para reemplazos automáticos. | Cloud |
+| 10. Dev/Prod Parity | Parcial | Mantener ambientes similares utilizando contenedores y configuraciones equivalentes. | Equipo Desarrollo |
+| 11. Logs | Parcial | Centralizar logs del Backend API y Tutor IA mediante servicios de monitoreo cloud como Amazon CloudWatch. | Cloud |
+| 12. Admin Processes | Cumple | Ejecutar migraciones de base de datos y tareas administrativas mediante procesos controlados. | Backend |
