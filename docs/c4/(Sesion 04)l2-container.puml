@@ -1,1 +1,38 @@
+@startuml AulaViva_C4_L2
 
+!include <C4/C4_Container>
+
+Person(estudiante, "Estudiante")
+Person(docente, "Docente")
+Person(apoderado, "Apoderado")
+
+System_Boundary(aulaviva, "AulaViva Plataforma SaaS") {
+
+Container(web, "Aplicación Web", "AWS Amplify + React / Next.js", "Interfaz de usuarios")
+
+Container(api, "Backend API", "Amazon ECS Fargate + Node.js", "Lógica del negocio")
+
+ContainerDb(db, "Base de Datos", "Amazon RDS PostgreSQL", "Datos académicos")
+
+Container(ai, "Tutor IA", "ECS Fargate + Python + LangChain", "Servicio IA RAG")
+
+ContainerDb(vector, "Base Vectorial", "Amazon OpenSearch Serverless", "Embeddings")
+
+Container(email, "Servicio Email", "Amazon SES", "Notificaciones")
+
+Container(storage, "Almacenamiento", "Amazon S3", "Documentos educativos")
+
+}
+
+Rel(estudiante, web, "Usa")
+Rel(docente, web, "Administra")
+Rel(apoderado, web, "Consulta")
+
+Rel(web, api, "HTTPS")
+Rel(api, db, "Consulta datos")
+Rel(api, ai, "Solicita respuestas")
+Rel(ai, vector, "Busca información")
+Rel(api, email, "Envía avisos")
+Rel(api, storage, "Guarda archivos")
+
+@enduml
