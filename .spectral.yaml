@@ -1,0 +1,21 @@
+extends: spectral:oas
+
+rules:
+  # Regla personalizada del equipo: Todas las operaciones deben tener un summary
+  operation-summary-required:
+    description: "El equipo exige que cada endpoint tenga un summary descriptivo."
+    given: "$.paths.[get,post,put,delete,patch]"
+    severity: error
+    then:
+      field: summary
+      function: truthy
+
+  # Regla de equipo: Las rutas deben estar en kebab-case (letras minúsculas y guiones)
+  paths-kebab-case:
+    description: "Las rutas (paths) deben usar kebab-case."
+    given: "$.paths[]~"
+    severity: warn
+    then:
+      function: pattern
+      functionOptions:
+        match: "^(/[a-z0-9-]+|/{[a-zA-Z0-9]+})+$"
