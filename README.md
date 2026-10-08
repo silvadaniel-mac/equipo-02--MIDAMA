@@ -15,4 +15,4 @@ Plataforma educativa SaaS con inteligencia artificial orientada a colegios.
 
 Con Node.js 24: `npm ci` y `npm run api:check`. Ejecutar `npm run api:mock` en una terminal y `npm run api:examples` en otra. `npm run api:docs` genera la referencia Redoc.
 
-[Documentación viva Swagger UI](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/silvadaniel-mac/equipo-02--MIDAMA/feat/s05-openapi-contract/api/openapi.yaml).
+[Documentación viva Swagger UI](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/silvadaniel-mac/equipo-02--MIDAMA/main/api/openapi.yaml).
