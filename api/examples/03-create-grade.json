@@ -1,0 +1,15 @@
+{
+  "name": "03-create-grade",
+  "method": "POST",
+  "path": "/api/v1/schools/sch_01/students/stu_01/grades",
+  "expectedStatus": 201,
+  "expectedFields": [
+    "id"
+  ],
+  "body": {
+    "subject": "Matemáticas",
+    "score": 6.5,
+    "weight": 0.3,
+    "comment": "Buen desempeño"
+  }
+}

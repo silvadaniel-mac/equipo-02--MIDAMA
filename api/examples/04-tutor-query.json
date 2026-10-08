@@ -1,0 +1,12 @@
+{
+  "name": "04-tutor-query",
+  "method": "POST",
+  "path": "/api/v1/schools/sch_01/courses/crs_01/tutor-queries",
+  "expectedStatus": 201,
+  "expectedFields": [
+    "id"
+  ],
+  "body": {
+    "question": "¿Cómo resuelvo una ecuación de primer grado?"
+  }
+}
