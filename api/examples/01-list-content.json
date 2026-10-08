@@ -1,0 +1,9 @@
+{
+  "name": "01-list-content",
+  "method": "GET",
+  "path": "/api/v1/schools/sch_01/courses/crs_01/content?limit=20",
+  "expectedStatus": 200,
+  "expectedFields": [
+    "items"
+  ]
+}

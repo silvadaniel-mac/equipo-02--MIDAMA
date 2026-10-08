@@ -1,0 +1,30 @@
+{
+  "name": "aulaviva-contract",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/api-client"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "api:lint": "spectral lint api/openapi.yaml --fail-severity warn",
+    "api:generate": "openapi-typescript api/openapi.yaml -o packages/api-client/src/schema.d.ts",
+    "api:typecheck": "tsc -p packages/api-client/tsconfig.json --noEmit",
+    "api:mock": "prism mock api/openapi.yaml --host 127.0.0.1 --port 4010",
+    "api:examples": "node scripts/run-examples.mjs",
+    "api:test": "node --test tests/contract.test.mjs",
+    "api:docs": "redocly build-docs api/openapi.yaml -o docs/api/reference.html",
+    "api:check": "npm run api:lint && npm run api:generate && npm run api:typecheck && npm run api:test"
+  },
+  "devDependencies": {
+    "@redocly/cli": "2.60.0",
+    "@stoplight/prism-cli": "5.16.0",
+    "@stoplight/spectral-cli": "6.17.0",
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3",
+    "yaml": "2.8.1"
+  }
+}

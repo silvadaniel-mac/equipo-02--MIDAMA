@@ -1,0 +1,14 @@
+{
+  "name": "02-create-content",
+  "method": "POST",
+  "path": "/api/v1/schools/sch_01/courses/crs_01/content",
+  "expectedStatus": 201,
+  "expectedFields": [
+    "id"
+  ],
+  "body": {
+    "title": "Guía de álgebra",
+    "description": "Ecuaciones de primer grado",
+    "fileUrl": "https://example.org/algebra.pdf"
+  }
+}
