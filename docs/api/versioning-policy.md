@@ -6,7 +6,7 @@ El contrato canónico es `api/openapi.yaml`. La API usa `/api/v1`; `info.version
 
 PATCH corrige documentación o ejemplos sin cambiar comportamiento. MINOR agrega operaciones o campos opcionales sin afectar consumidores existentes. MAJOR corresponde a una nueva ruta `/api/v2`, por ejemplo al eliminar o renombrar campos, agregar campos obligatorios, reducir rangos permitidos, cambiar status o endurecer permisos. Ampliar enums de salida también puede romper clientes exhaustivos y requiere evaluación de compatibilidad. Los consumidores deben tolerar campos desconocidos.
 
-## Deprecación
+## Depreciación
 
 Marcar `deprecated: true`, documentar reemplazo y guía de migración en el PR, y notificar con al menos tres meses de anticipación antes del retiro. Mantener comportamiento durante la transición. Las respuestas del recurso deprecado deben incluir `Deprecation` (fecha de inicio), `Sunset` (fecha HTTP de retiro) y `Link` con `rel="deprecation"` hacia la guía. Una corrección urgente de seguridad se evalúa y comunica explícitamente, con medidas de migración.
 
