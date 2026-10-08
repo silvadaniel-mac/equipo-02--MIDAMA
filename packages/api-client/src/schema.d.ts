@@ -667,7 +667,7 @@ export interface operations {
                     "X-Trace-Id"?: string;
                     /**
                      * @description URI del recurso creado dentro del colegio.
-                     * @example /courses/crs_01/content/cnt_01
+                     * @example /api/v1/schools/sch_01/courses/crs_01/content/cnt_01
                      */
                     Location?: string;
                     [name: string]: unknown;
@@ -816,7 +816,7 @@ export interface operations {
                     "X-Trace-Id"?: string;
                     /**
                      * @description URI del recurso creado dentro del colegio.
-                     * @example /students/stu_01/grades/grd_01
+                     * @example /api/v1/schools/sch_01/students/stu_01/grades/grd_01
                      */
                     Location?: string;
                     [name: string]: unknown;
@@ -940,7 +940,7 @@ export interface operations {
                     "X-Trace-Id"?: string;
                     /**
                      * @description URI del recurso creado dentro del colegio.
-                     * @example /courses/crs_01/tutor-queries/tq_01
+                     * @example /api/v1/schools/sch_01/courses/crs_01/tutor-queries/tq_01
                      */
                     Location?: string;
                     [name: string]: unknown;
@@ -1017,7 +1017,7 @@ export interface operations {
                     "X-Trace-Id"?: string;
                     /**
                      * @description URI del recurso creado dentro del colegio.
-                     * @example /courses/crs_01/evaluations/ev_01
+                     * @example /api/v1/schools/sch_01/courses/crs_01/evaluations/ev_01
                      */
                     Location?: string;
                     [name: string]: unknown;
