@@ -2,9 +2,9 @@
 
 ## Documentación viva accesible
 
-[Ver Swagger UI del contrato en la rama S05](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/silvadaniel-mac/equipo-02--MIDAMA/feat/s05-openapi-contract/api/openapi.yaml).
+[Ver Swagger UI del contrato en main](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/silvadaniel-mac/equipo-02--MIDAMA/main/api/openapi.yaml).
 
-El enlace usa el Swagger UI público y carga directamente el YAML de esta rama pública; no requiere desplegar un backend. Después del merge, cambiar el segmento de rama por `main`. Para generar documentación autocontenida local: `npm run api:docs` crea `docs/api/reference.html`; CI la adjunta como artefacto.
+El enlace usa el Swagger UI público y carga directamente el YAML canónico de `main`; no requiere desplegar un backend. Para generar documentación autocontenida local: `npm run api:docs` crea `docs/api/reference.html`; CI la adjunta como artefacto.
 
 ## Entregables y verificación
 
