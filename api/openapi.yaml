@@ -93,7 +93,7 @@ paths:
               schema:
                 type: string
                 format: uri-reference
-              example: /courses/crs_01/content/cnt_01
+              example: /api/v1/schools/sch_01/courses/crs_01/content/cnt_01
           content:
             application/json:
               schema:
@@ -198,7 +198,7 @@ paths:
               schema:
                 type: string
                 format: uri-reference
-              example: /students/stu_01/grades/grd_01
+              example: /api/v1/schools/sch_01/students/stu_01/grades/grd_01
           content:
             application/json:
               schema:
@@ -297,7 +297,7 @@ paths:
               schema:
                 type: string
                 format: uri-reference
-              example: /courses/crs_01/tutor-queries/tq_01
+              example: /api/v1/schools/sch_01/courses/crs_01/tutor-queries/tq_01
           content:
             application/json:
               schema:
@@ -356,7 +356,7 @@ paths:
               schema:
                 type: string
                 format: uri-reference
-              example: /courses/crs_01/evaluations/ev_01
+              example: /api/v1/schools/sch_01/courses/crs_01/evaluations/ev_01
           content:
             application/json:
               schema:
