@@ -1,0 +1,837 @@
+openapi: 3.1.0
+info:
+  title: AulaViva API
+  version: 1.0.0
+  description: Contrato del backend educativo multi-tenant. Datos de ejemplo ficticios.
+    Diseño contract-first; no representa un backend desplegado.
+  contact:
+    name: Equipo MIDAMA
+    url: https://github.com/silvadaniel-mac/equipo-02--MIDAMA
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: http://127.0.0.1:4010
+  description: Mock Prism local
+tags:
+- name: Académico
+  description: Contenidos, notas e informes por colegio.
+- name: IA
+  description: Tutor contextual y evaluaciones con revisión docente.
+security:
+- bearerAuth: []
+paths:
+  /api/v1/schools/{schoolId}/courses/{courseId}/content:
+    get:
+      summary: Listar contenido del curso
+      description: 'Acceso: docente, estudiante matriculado. El JWT debe autorizar
+        schoolId. Recursos ajenos al colegio retornan 404 sin revelar su existencia.'
+      operationId: listContent
+      tags:
+      - Académico
+      parameters:
+      - $ref: '#/components/parameters/schoolId'
+      - $ref: '#/components/parameters/courseId'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Consulta exitosa.
+          headers:
+            X-Trace-Id: &id001
+              description: Identificador para correlacionar respuesta y logs.
+              schema: &id006
+                type: string
+                minLength: 1
+              example: trace_demo_01
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentPage'
+              example: &id019
+                items:
+                - &id002
+                  id: cnt_01
+                  title: Guía de álgebra
+                  description: Ecuaciones de primer grado
+                  fileUrl: https://example.org/algebra.pdf
+                  createdAt: '2026-10-08T00:00:00Z'
+                nextCursor: null
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '503':
+          $ref: '#/components/responses/503'
+      x-roles:
+      - docente
+      - estudiante matriculado
+    post:
+      summary: Crear contenido educativo
+      description: 'Acceso: docente autorizado. El JWT debe autorizar schoolId. Recursos
+        ajenos al colegio retornan 404 sin revelar su existencia.'
+      operationId: createContent
+      tags:
+      - Académico
+      parameters:
+      - $ref: '#/components/parameters/schoolId'
+      - $ref: '#/components/parameters/courseId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '201':
+          description: Recurso creado.
+          headers:
+            X-Trace-Id: *id001
+            Location:
+              description: URI del recurso creado dentro del colegio.
+              schema:
+                type: string
+                format: uri-reference
+              example: /courses/crs_01/content/cnt_01
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Content'
+              example: *id002
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '503':
+          $ref: '#/components/responses/503'
+        '409':
+          $ref: '#/components/responses/409'
+        '422':
+          $ref: '#/components/responses/422'
+      x-roles:
+      - docente autorizado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentInput'
+            example: &id004
+              title: Guía de álgebra
+              description: Ecuaciones de primer grado
+              fileUrl: https://example.org/algebra.pdf
+  /api/v1/schools/{schoolId}/students/{studentId}/grades:
+    get:
+      summary: Consultar notas del estudiante
+      description: 'Acceso: docente, estudiante titular, apoderado vinculado. El JWT
+        debe autorizar schoolId. Recursos ajenos al colegio retornan 404 sin revelar
+        su existencia.'
+      operationId: listGrades
+      tags:
+      - Académico
+      parameters:
+      - $ref: '#/components/parameters/schoolId'
+      - $ref: '#/components/parameters/studentId'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Subject'
+      responses:
+        '200':
+          description: Consulta exitosa.
+          headers:
+            X-Trace-Id: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradePage'
+              example: &id020
+                items:
+                - &id003
+                  id: grd_01
+                  subject: Matemáticas
+                  score: 6.5
+                  weight: 0.3
+                  comment: Buen desempeño
+                  date: '2026-10-08'
+                nextCursor: null
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '503':
+          $ref: '#/components/responses/503'
+      x-roles:
+      - docente
+      - estudiante titular
+      - apoderado vinculado
+    post:
+      summary: Registrar nota del estudiante
+      description: 'Acceso: docente autorizado. El JWT debe autorizar schoolId. Recursos
+        ajenos al colegio retornan 404 sin revelar su existencia.'
+      operationId: createGrade
+      tags:
+      - Académico
+      parameters:
+      - $ref: '#/components/parameters/schoolId'
+      - $ref: '#/components/parameters/studentId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '201':
+          description: Recurso creado.
+          headers:
+            X-Trace-Id: *id001
+            Location:
+              description: URI del recurso creado dentro del colegio.
+              schema:
+                type: string
+                format: uri-reference
+              example: /students/stu_01/grades/grd_01
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+              example: *id003
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '503':
+          $ref: '#/components/responses/503'
+        '409':
+          $ref: '#/components/responses/409'
+        '422':
+          $ref: '#/components/responses/422'
+      x-roles:
+      - docente autorizado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeInput'
+            example: &id005
+              subject: Matemáticas
+              score: 6.5
+              weight: 0.3
+              comment: Buen desempeño
+  /api/v1/schools/{schoolId}/students/{studentId}/reports:
+    get:
+      summary: Obtener informe académico del estudiante
+      description: 'Acceso: docente, estudiante titular, apoderado vinculado. El JWT
+        debe autorizar schoolId. Recursos ajenos al colegio retornan 404 sin revelar
+        su existencia.'
+      operationId: getReport
+      tags:
+      - Académico
+      parameters:
+      - $ref: '#/components/parameters/schoolId'
+      - $ref: '#/components/parameters/studentId'
+      responses:
+        '200':
+          description: Consulta exitosa.
+          headers:
+            X-Trace-Id: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+              example: &id007
+                studentId: stu_01
+                studentName: Estudiante de prueba
+                generalAverage: 6.2
+                attendancePercentage: 94.5
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '503':
+          $ref: '#/components/responses/503'
+      x-roles:
+      - docente
+      - estudiante titular
+      - apoderado vinculado
+  /api/v1/schools/{schoolId}/courses/{courseId}/tutor-queries:
+    post:
+      summary: Consultar tutor IA del curso
+      description: 'Acceso: docente, estudiante matriculado. El JWT debe autorizar
+        schoolId. Recursos ajenos al colegio retornan 404 sin revelar su existencia.'
+      operationId: createTutorQuery
+      tags:
+      - IA
+      parameters:
+      - $ref: '#/components/parameters/schoolId'
+      - $ref: '#/components/parameters/courseId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '201':
+          description: Recurso creado.
+          headers:
+            X-Trace-Id: *id001
+            Location:
+              description: URI del recurso creado dentro del colegio.
+              schema:
+                type: string
+                format: uri-reference
+              example: /courses/crs_01/tutor-queries/tq_01
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TutorQuery'
+              example: &id009
+                id: tq_01
+                answer: Aísla la incógnita aplicando la misma operación a ambos lados.
+                contentIds:
+                - cnt_01
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '503':
+          $ref: '#/components/responses/503'
+        '409':
+          $ref: '#/components/responses/409'
+        '422':
+          $ref: '#/components/responses/422'
+      x-roles:
+      - docente
+      - estudiante matriculado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TutorQueryInput'
+            example: &id008
+              question: ¿Cómo resuelvo una ecuación de primer grado?
+  /api/v1/schools/{schoolId}/courses/{courseId}/evaluations:
+    post:
+      summary: Generar borrador de evaluación
+      description: 'Acceso: docente autorizado. El JWT debe autorizar schoolId. Recursos
+        ajenos al colegio retornan 404 sin revelar su existencia.'
+      operationId: createEvaluation
+      tags:
+      - IA
+      parameters:
+      - $ref: '#/components/parameters/schoolId'
+      - $ref: '#/components/parameters/courseId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '201':
+          description: Recurso creado.
+          headers:
+            X-Trace-Id: *id001
+            Location:
+              description: URI del recurso creado dentro del colegio.
+              schema:
+                type: string
+                format: uri-reference
+              example: /courses/crs_01/evaluations/ev_01
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Evaluation'
+              example: &id011
+                id: ev_01
+                title: Evaluación de álgebra
+                questions:
+                - prompt: Resuelve x + 2 = 5
+                  answer: x = 3
+                status: draft
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '503':
+          $ref: '#/components/responses/503'
+        '409':
+          $ref: '#/components/responses/409'
+        '422':
+          $ref: '#/components/responses/422'
+      x-roles:
+      - docente autorizado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationInput'
+            example: &id010
+              title: Evaluación de álgebra
+              contentIds:
+              - cnt_01
+              questionCount: 5
+components:
+  schemas:
+    ContentInput:
+      type: object
+      required:
+      - title
+      - fileUrl
+      properties:
+        title: &id012
+          type: string
+          minLength: 1
+          maxLength: 200
+        description: &id013
+          type: string
+          minLength: 1
+          maxLength: 2000
+        fileUrl: &id014
+          type: string
+          minLength: 1
+          format: uri
+      examples:
+      - *id004
+    GradeInput:
+      type: object
+      required:
+      - subject
+      - score
+      properties:
+        subject: &id015
+          type: string
+          minLength: 1
+          maxLength: 100
+        score: &id016
+          type: number
+          minimum: 1
+          maximum: 7
+        weight: &id017
+          type: number
+          exclusiveMinimum: 0
+          maximum: 1
+        comment: &id018
+          type: string
+          minLength: 1
+          maxLength: 1000
+      examples:
+      - *id005
+    Report:
+      type: object
+      required:
+      - studentId
+      - studentName
+      - generalAverage
+      - attendancePercentage
+      properties:
+        studentId: *id006
+        studentName: *id006
+        generalAverage:
+          type: number
+          minimum: 1
+          maximum: 7
+        attendancePercentage:
+          type: number
+          minimum: 0
+          maximum: 100
+      examples:
+      - *id007
+    TutorQueryInput:
+      type: object
+      required:
+      - question
+      properties:
+        question:
+          type: string
+          minLength: 1
+          maxLength: 2000
+      examples:
+      - *id008
+    TutorQuery:
+      type: object
+      required:
+      - id
+      - answer
+      - contentIds
+      properties:
+        id: *id006
+        answer: *id006
+        contentIds:
+          type: array
+          items: *id006
+      examples:
+      - *id009
+    EvaluationInput:
+      type: object
+      required:
+      - title
+      - contentIds
+      - questionCount
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        contentIds:
+          type: array
+          minItems: 1
+          maxItems: 20
+          uniqueItems: true
+          items: *id006
+        questionCount:
+          type: integer
+          minimum: 1
+          maximum: 20
+      examples:
+      - *id010
+    Evaluation:
+      type: object
+      required:
+      - id
+      - title
+      - questions
+      - status
+      properties:
+        id: *id006
+        title: *id006
+        questions:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required:
+            - prompt
+            - answer
+            properties:
+              prompt: *id006
+              answer: *id006
+        status:
+          type: string
+          enum:
+          - draft
+      examples:
+      - *id011
+    Problem:
+      type: object
+      required:
+      - type
+      - title
+      - status
+      - detail
+      - instance
+      - trace_id
+      properties:
+        type:
+          type: string
+          format: uri
+        title: *id006
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        detail: *id006
+        instance:
+          type: string
+          format: uri-reference
+        trace_id: *id006
+    Content:
+      type: object
+      required:
+      - id
+      - title
+      - fileUrl
+      - createdAt
+      properties:
+        title: *id012
+        description: *id013
+        fileUrl: *id014
+        id: *id006
+        createdAt:
+          type: string
+          format: date-time
+      examples:
+      - *id002
+    Grade:
+      type: object
+      required:
+      - id
+      - subject
+      - score
+      - date
+      properties:
+        subject: *id015
+        score: *id016
+        weight: *id017
+        comment: *id018
+        id: *id006
+        date:
+          type: string
+          format: date
+      examples:
+      - *id003
+    ContentPage:
+      type: object
+      required:
+      - items
+      - nextCursor
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Content'
+        nextCursor:
+          type:
+          - string
+          - 'null'
+      examples:
+      - *id019
+    GradePage:
+      type: object
+      required:
+      - items
+      - nextCursor
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Grade'
+        nextCursor:
+          type:
+          - string
+          - 'null'
+      examples:
+      - *id020
+  parameters:
+    schoolId:
+      name: schoolId
+      in: path
+      required: true
+      description: Identificador del recurso dentro del colegio autorizado.
+      schema:
+        type: string
+        minLength: 1
+        pattern: ^[a-zA-Z0-9_-]+$
+      example: sch_01
+    courseId:
+      name: courseId
+      in: path
+      required: true
+      description: Identificador del recurso dentro del colegio autorizado.
+      schema:
+        type: string
+        minLength: 1
+        pattern: ^[a-zA-Z0-9_-]+$
+      example: crs_01
+    studentId:
+      name: studentId
+      in: path
+      required: true
+      description: Identificador del recurso dentro del colegio autorizado.
+      schema:
+        type: string
+        minLength: 1
+        pattern: ^[a-zA-Z0-9_-]+$
+      example: stu_01
+    Limit:
+      name: limit
+      in: query
+      description: Tamaño de página (máximo 100).
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      example: 20
+    Cursor:
+      name: cursor
+      in: query
+      description: Cursor opaco devuelto en nextCursor, limitado al tenant y filtros.
+      schema: *id006
+      example: page_02
+    Subject:
+      name: subject
+      in: query
+      description: Filtrar notas por nombre exacto de asignatura.
+      schema: *id006
+      example: Matemáticas
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: UUID. Retención de 24 h por colegio, usuario y operación. Mismo
+        payload reproduce status/body; payload diferente retorna 409.
+      schema:
+        type: string
+        format: uuid
+      example: 60fae59e-e41c-4fe9-8a7a-51c8e3a301cc
+  responses:
+    '400':
+      description: Solicitud inválida
+      headers:
+        X-Trace-Id: *id001
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://example.org/problems/400
+            title: Solicitud inválida
+            status: 400
+            detail: Solicitud inválida. Datos ficticios de demostración.
+            instance: /api/v1/schools/sch_01/courses/crs_01/content
+            trace_id: trace_demo_01
+    '401':
+      description: Autenticación requerida
+      headers:
+        X-Trace-Id: *id001
+        WWW-Authenticate:
+          description: Desafío Bearer.
+          schema: *id006
+          example: Bearer
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://example.org/problems/401
+            title: Autenticación requerida
+            status: 401
+            detail: Autenticación requerida. Datos ficticios de demostración.
+            instance: /api/v1/schools/sch_01/courses/crs_01/content
+            trace_id: trace_demo_01
+    '403':
+      description: Permiso insuficiente
+      headers:
+        X-Trace-Id: *id001
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://example.org/problems/403
+            title: Permiso insuficiente
+            status: 403
+            detail: Permiso insuficiente. Datos ficticios de demostración.
+            instance: /api/v1/schools/sch_01/courses/crs_01/content
+            trace_id: trace_demo_01
+    '404':
+      description: Recurso no encontrado
+      headers:
+        X-Trace-Id: *id001
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://example.org/problems/404
+            title: Recurso no encontrado
+            status: 404
+            detail: Recurso no encontrado. Datos ficticios de demostración.
+            instance: /api/v1/schools/sch_01/courses/crs_01/content
+            trace_id: trace_demo_01
+    '409':
+      description: Conflicto de idempotencia
+      headers:
+        X-Trace-Id: *id001
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://example.org/problems/409
+            title: Conflicto de idempotencia
+            status: 409
+            detail: Conflicto de idempotencia. Datos ficticios de demostración.
+            instance: /api/v1/schools/sch_01/courses/crs_01/content
+            trace_id: trace_demo_01
+    '422':
+      description: Validación semántica fallida
+      headers:
+        X-Trace-Id: *id001
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://example.org/problems/422
+            title: Validación semántica fallida
+            status: 422
+            detail: Validación semántica fallida. Datos ficticios de demostración.
+            instance: /api/v1/schools/sch_01/courses/crs_01/content
+            trace_id: trace_demo_01
+    '429':
+      description: Límite de solicitudes excedido
+      headers:
+        X-Trace-Id: *id001
+        Retry-After:
+          description: Segundos antes de reintentar.
+          schema:
+            type: integer
+            minimum: 1
+          example: 60
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://example.org/problems/429
+            title: Límite de solicitudes excedido
+            status: 429
+            detail: Límite de solicitudes excedido. Datos ficticios de demostración.
+            instance: /api/v1/schools/sch_01/courses/crs_01/content
+            trace_id: trace_demo_01
+    '503':
+      description: Servicio temporalmente no disponible
+      headers:
+        X-Trace-Id: *id001
+        Retry-After:
+          description: Segundos antes de reintentar.
+          schema:
+            type: integer
+            minimum: 1
+          example: 60
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://example.org/problems/503
+            title: Servicio temporalmente no disponible
+            status: 503
+            detail: Servicio temporalmente no disponible. Datos ficticios de demostración.
+            instance: /api/v1/schools/sch_01/courses/crs_01/content
+            trace_id: trace_demo_01
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Validar firma, emisor, audiencia, expiración, colegio, rol y vínculo
+        al recurso en el backend.
