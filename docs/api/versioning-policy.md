@@ -1,4 +1,4 @@
-# Política de versionado y deprecación
+# Política de versionado y depreciación
 
 El contrato canónico es `api/openapi.yaml`. La API usa `/api/v1`; `info.version` sigue SemVer y el cliente se regenera con cada modificación. El borrador `MiDamaAPI.yaml` se migra a esta ubicación y se retira para evitar contratos divergentes.
 
