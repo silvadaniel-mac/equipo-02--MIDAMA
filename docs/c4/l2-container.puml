@@ -1,35 +1,66 @@
-@startuml AulaViva_C4_L2
+
+@startuml AulaViva_C4_L2_S06
 
 !include <C4/C4_Container>
+
+title AulaViva - C4 Nivel 2 - Sesion 06
 
 Person(estudiante, "Estudiante")
 Person(docente, "Docente")
 Person(apoderado, "Apoderado")
 
-System_Boundary(aula, "AulaViva Plataforma SaaS") {
+System_Boundary(aula, "AulaViva - Plataforma SaaS") {
 
-Container(web, "Aplicación Web", "React / Next.js", "Interfaz para usuarios")
+    Container(web, "Aplicacion Web", "React / Next.js", "Interfaz para estudiantes, docentes y apoderados")
 
-Container(api, "Backend API", "Node.js", "Lógica del sistema")
+    Container(api, "Backend API", "Node.js / ECS Fargate", "Gestion academica, identidad, evaluaciones y seguimiento")
 
-ContainerDb(db, "Base de Datos", "PostgreSQL", "Datos académicos")
+    ContainerDb(db, "Base de Datos", "Amazon RDS PostgreSQL", "Datos academicos, usuarios, evaluaciones y tabla Outbox")
 
-Container(ai, "Tutor IA", "Python + LangChain", "Asistente inteligente")
+    Container(ai, "Tutor IA", "Python + LangChain / ECS Fargate", "Asistente educativo inteligente")
 
-ContainerDb(vector, "Base Vectorial", "ChromaDB", "Embeddings")
+    ContainerDb(vector, "Base Vectorial", "Amazon OpenSearch Serverless", "Embeddings y busqueda semantica")
 
-Container(email, "Servicio Email", "SMTP", "Notificaciones")
+    ContainerDb(archivos, "Archivos Educativos", "Amazon S3", "Documentos y recursos educativos")
+
+    Container(publicador, "Publicador Outbox", "Worker Node.js", "Publica eventos pendientes de PostgreSQL")
+
+    Container(broker, "Bus de Eventos", "Amazon EventBridge", "Distribucion de eventos de dominio")
+
+    Container(cola, "Cola de Eventos", "Amazon SQS", "Almacena mensajes para procesamiento asincrono")
+
+    Container(consumidor, "Consumidor de Eventos", "Worker Node.js", "Procesa eventos de seguimiento y notificaciones")
 
 }
 
-Rel(estudiante, web, "Usa")
+System_Ext(email, "Servicio Email", "Amazon SES - Envio de notificaciones")
+
+Rel(estudiante, web, "Utiliza")
 Rel(docente, web, "Administra")
 Rel(apoderado, web, "Consulta")
 
-Rel(web, api, "HTTPS")
-Rel(api, db, "Consulta datos")
-Rel(api, ai, "Solicita respuestas")
-Rel(ai, vector, "Busca información")
-Rel(api, email, "Envía avisos")
+Rel(web, api, "Solicitudes", "HTTPS")
+
+Rel(api, db, "Consulta y guarda datos y eventos Outbox", "SQL")
+
+Rel(api, ai, "Solicita respuestas", "HTTPS")
+
+Rel(ai, vector, "Busca informacion semantica", "API")
+
+Rel(api, archivos, "Gestiona materiales educativos", "API AWS")
+
+Rel(ai, archivos, "Recupera documentos", "API AWS")
+
+Rel(publicador, db, "Lee eventos pendientes", "SQL")
+
+Rel(publicador, broker, "Publica eventos", "API AWS")
+
+Rel(broker, cola, "Enruta eventos", "Reglas EventBridge")
+
+Rel(consumidor, cola, "Consume mensajes", "API SQS")
+
+Rel(consumidor, db, "Actualiza seguimiento e idempotencia", "SQL")
+
+Rel(consumidor, email, "Solicita notificaciones", "API AWS")
 
 @enduml
