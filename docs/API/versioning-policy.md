@@ -1,4 +1,4 @@
-# Política de Versionado y Deprecación
+# Política de Versionado y Depreciación
 
 ### 1. Versionado
 
