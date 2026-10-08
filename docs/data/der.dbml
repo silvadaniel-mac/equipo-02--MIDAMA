@@ -1,0 +1,70 @@
+
+Table Evaluacion {
+  id uuid [pk]
+  tenant_id uuid [not null, note: 'Referencia a establecimiento']
+  curso_id uuid [not null, note: 'Referencia externa a curso']
+  docente_id uuid [not null, note: 'Referencia externa a docente']
+  titulo varchar(200)
+  descripcion text
+  estado varchar(30)
+  fecha_creacion timestamp
+}
+
+Table Pregunta {
+  id uuid [pk]
+  evaluacion_id uuid [not null]
+  enunciado text
+  tipo varchar(30)
+  puntaje decimal(6,2)
+  orden int
+}
+
+Table OpcionRespuesta {
+  id uuid [pk]
+  pregunta_id uuid [not null]
+  texto text
+  es_correcta boolean
+}
+
+Table AsignacionEvaluacion {
+  id uuid [pk]
+  evaluacion_id uuid [not null]
+  curso_id uuid [not null, note: 'Referencia externa a curso']
+  fecha_inicio timestamp
+  fecha_limite timestamp
+}
+
+Table Intento {
+  id uuid [pk]
+  asignacion_id uuid [not null]
+  estudiante_id uuid [not null, note: 'Referencia externa a estudiante']
+  fecha_inicio timestamp
+  fecha_entrega timestamp
+  estado varchar(30)
+}
+
+Table Respuesta {
+  id uuid [pk]
+  intento_id uuid [not null]
+  pregunta_id uuid [not null]
+  opcion_id uuid
+  texto_respuesta text
+  puntaje_obtenido decimal(6,2)
+}
+
+Table Calificacion {
+  id uuid [pk]
+  intento_id uuid [not null, unique]
+  nota decimal(5,2)
+  porcentaje decimal(5,2)
+  fecha_calificacion timestamp
+}
+
+Ref: Pregunta.evaluacion_id > Evaluacion.id
+Ref: OpcionRespuesta.pregunta_id > Pregunta.id
+Ref: AsignacionEvaluacion.evaluacion_id > Evaluacion.id
+Ref: Intento.asignacion_id > AsignacionEvaluacion.id
+Ref: Respuesta.intento_id > Intento.id
+Ref: Respuesta.pregunta_id > Pregunta.id
+Ref: Respuesta.opcion_id > OpcionRespuesta.id
+Ref: Calificacion.intento_id > Intento.id
