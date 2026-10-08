@@ -1,0 +1,34 @@
+name: API contract S05
+on:
+  pull_request:
+  push:
+    branches: [main, feat/s05-openapi-contract]
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run api:check
+      - run: git diff --exit-code -- packages/api-client/src/schema.d.ts
+      - name: Ejemplos contra Prism
+        run: |
+          npm run api:mock > /tmp/prism.log 2>&1 &
+          MOCK_PID=$!
+          trap 'kill "$MOCK_PID" || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -s -o /dev/null http://127.0.0.1:4010; then break; fi
+            sleep 1
+          done
+          npm run api:examples
+      - run: npm run api:docs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aulaviva-api-reference
+          path: docs/api/reference.html
