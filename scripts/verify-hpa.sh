@@ -13,7 +13,17 @@ trap cleanup EXIT
 kubectl patch configmap aulaviva-config -n equipo-02 --type merge -p '{"data":{"ENABLE_LAB_LOAD":"true"}}'
 kubectl rollout restart deployment/aulaviva-api -n equipo-02
 kubectl rollout status deployment/aulaviva-api -n equipo-02 --timeout=180s
-kubectl top pods -n equipo-02 | tee artifacts/top-before.txt
+# Los pods recién creados necesitan muestras nuevas de Metrics Server.
+metrics_ready=false
+for attempt in $(seq 1 36); do
+  if kubectl top pods -n equipo-02 > artifacts/top-before.txt; then
+    metrics_ready=true
+    break
+  fi
+  sleep 5
+done
+[[ "$metrics_ready" == true ]] || { echo 'Metrics Server no entrega muestras de los nuevos pods.'; exit 1; }
+cat artifacts/top-before.txt
 kubectl get hpa -n equipo-02 | tee artifacts/hpa-before.txt
 kubectl delete job aulaviva-load -n equipo-02 --ignore-not-found
 kubectl apply -f k8s/lab/load.yaml
