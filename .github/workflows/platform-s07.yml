@@ -1,0 +1,158 @@
+name: Plataforma S07
+on:
+  pull_request:
+  push:
+    branches: [main, feature/s07-k8s-iac]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s07-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Pruebas HTTP y scripts
+        run: |
+          node --test services/api/server.test.mjs
+          bash -n scripts/deploy-s07.sh scripts/verify-hpa.sh
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.13.4'
+          terraform_wrapper: false
+      - name: Validar Terraform remoto sin usar AWS
+        run: |
+          terraform -chdir=terraform fmt -check -recursive
+          terraform -chdir=terraform init -backend=false -input=false -lockfile=readonly
+          terraform -chdir=terraform validate
+      - name: Build, tamaño, usuario y salud del contenedor
+        run: |
+          mkdir -p artifacts
+          docker build -t aulaviva-api:local .
+          size=$(docker image inspect aulaviva-api:local --format '{{.Size}}')
+          user=$(docker image inspect aulaviva-api:local --format '{{.Config.User}}')
+          printf 'size_bytes=%s\nuser=%s\n' "$size" "$user" | tee artifacts/image.txt
+          test "$size" -lt 200000000
+          test "$user" = '65532:65532'
+          docker run -d --name s07-smoke -p 8080:8080 --read-only --cap-drop=ALL --security-opt=no-new-privileges aulaviva-api:local
+          trap 'docker logs s07-smoke; docker rm -f s07-smoke' EXIT
+          curl --retry 20 --retry-connrefused --retry-delay 1 --fail http://localhost:8080/readyz
+          for attempt in $(seq 1 40); do
+            status=$(docker inspect s07-smoke --format '{{.State.Health.Status}}')
+            if [ "$status" = healthy ]; then break; fi
+            sleep 1
+          done
+          test "$status" = healthy
+          docker inspect s07-smoke --format '{{json .State.Health}}' > artifacts/docker-health.json
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.32.2'
+      - name: Crear clúster kind
+        run: |
+          curl -fsSL --retry 3 https://kind.sigs.k8s.io/dl/v0.27.0/kind-linux-amd64 -o /tmp/kind
+          chmod +x /tmp/kind
+          /tmp/kind create cluster --name aulaviva --wait 120s
+          /tmp/kind load docker-image aulaviva-api:local --name aulaviva
+      - name: Aplicar Terraform local sobre kind
+        run: |
+          terraform -chdir=terraform/lab init -input=false -lockfile=readonly
+          terraform -chdir=terraform/lab validate
+          terraform -chdir=terraform/lab plan -input=false -out=lab.tfplan
+          terraform -chdir=terraform/lab apply -input=false lab.tfplan
+          terraform -chdir=terraform/lab plan -input=false -detailed-exitcode > artifacts/terraform-no-drift.txt
+      - name: Instalar Metrics Server (ajuste TLS exclusivo de kind)
+        run: |
+          kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.7.2/components.yaml
+          kubectl patch deployment metrics-server -n kube-system --type=json -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+          kubectl rollout status deployment/metrics-server -n kube-system --timeout=180s
+      - name: Validación de servidor, rollout y HTTP por Service
+        run: |
+          kubectl kustomize k8s/ > artifacts/deploy-local.yaml
+          kubectl apply --dry-run=server -k k8s/
+          kubectl apply -k k8s/
+          kubectl rollout status deployment/aulaviva-api -n equipo-02 --timeout=180s
+          kubectl port-forward -n equipo-02 service/aulaviva-api 8080:80 > /tmp/s07-forward.log 2>&1 &
+          forward_pid=$!
+          trap 'kill "$forward_pid" || true' EXIT
+          curl --retry 20 --retry-connrefused --retry-delay 1 --fail http://localhost:8080/readyz | tee artifacts/http-ready.json
+          for attempt in $(seq 1 36); do
+            if kubectl top pods -n equipo-02 > artifacts/top-initial.txt; then break; fi
+            sleep 5
+          done
+          kubectl top pods -n equipo-02
+      - name: Carga sintética y escalamiento HPA (subida y bajada)
+        run: bash scripts/verify-hpa.sh
+      - name: Diagnóstico de clúster
+        if: always()
+        run: |
+          mkdir -p artifacts
+          kubectl get all -n equipo-02 -o wide > artifacts/cluster-final.txt 2>&1 || true
+          kubectl get events -n equipo-02 --sort-by=.metadata.creationTimestamp > artifacts/events.txt 2>&1 || true
+          kubectl describe hpa aulaviva-api -n equipo-02 > artifacts/hpa-describe.txt 2>&1 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s07-evidencias-${{ github.sha }}
+          path: artifacts/
+          retention-days: 30
+  publish:
+    needs: lab
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Nombre de imagen
+        id: image
+        shell: bash
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "name=ghcr.io/$owner/aulaviva-api" >> "$GITHUB_OUTPUT"
+      - name: Publicar SHA del commit (sin latest)
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.image.outputs.name }}:sha-${{ github.sha }}
+          provenance: true
+          sbom: true
+      - name: Verificar pull y generar despliegue por digest
+        env:
+          IMAGE_NAME: ${{ steps.image.outputs.name }}
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          mkdir -p artifacts
+          image="$IMAGE_NAME@$IMAGE_DIGEST"
+          docker pull "$image" | tee artifacts/pull-by-digest.txt
+          printf '%s\n' "$image" > artifacts/image-digest.txt
+          docker run --rm --entrypoint /nodejs/bin/node "$image" --version | tee artifacts/runtime-version.txt
+          echo "Imagen publicada: \`$image\`" >> "$GITHUB_STEP_SUMMARY"
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.32.2'
+      - name: Manifiesto resuelto
+        env:
+          IMAGE_NAME: ${{ steps.image.outputs.name }}
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        run: kubectl kustomize k8s/ | sed "s|aulaviva-api:local|$IMAGE_NAME@$IMAGE_DIGEST|g" > artifacts/deploy-ghcr.yaml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s07-ghcr-${{ github.sha }}
+          path: artifacts/
+          retention-days: 30
