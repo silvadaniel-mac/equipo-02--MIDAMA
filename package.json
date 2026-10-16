@@ -17,7 +17,8 @@
     "api:examples": "node scripts/run-examples.mjs",
     "api:test": "node --test tests/contract.test.mjs",
     "api:docs": "redocly build-docs api/openapi.yaml -o docs/api/reference.html",
-    "api:check": "npm run api:lint && npm run api:generate && npm run api:typecheck && npm run api:test"
+    "api:check": "npm run api:lint && npm run api:generate && npm run api:typecheck && npm run api:test",
+    "platform:test": "node --test services/api/server.test.mjs"
   },
   "devDependencies": {
     "@redocly/cli": "2.60.0",
