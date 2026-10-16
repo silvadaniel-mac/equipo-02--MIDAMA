@@ -1,0 +1,6 @@
+**
+!services/
+!services/api/
+!services/api/server.mjs
+!services/api/server.test.mjs
+!Dockerfile

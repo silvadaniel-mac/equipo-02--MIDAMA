@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aulaviva-config
+data:
+  PORT: "8080"
+  NODE_ENV: "production"
+  ENABLE_LAB_LOAD: "false"

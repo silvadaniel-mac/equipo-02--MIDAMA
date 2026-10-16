@@ -1,3 +1,13 @@
 node_modules/
 docs/api/reference.html
 *.log
+
+# Estado y configuración local de infraestructura
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+terraform/backend.hcl
+*.tfvars
+!*.tfvars.example
+artifacts/

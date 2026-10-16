@@ -1,0 +1,7 @@
+# Bucket preexistente privado, cifrado, con versionado y bloqueo de acceso público.
+# Sustituir por el bucket real del equipo. No contiene credenciales.
+bucket       = "REEMPLAZAR-bucket-state-equipo-02"
+key          = "aulaviva/dev/workload/terraform.tfstate"
+region       = "us-east-1"
+encrypt      = true
+use_lockfile = true
