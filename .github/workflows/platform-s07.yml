@@ -42,7 +42,7 @@ jobs:
           test "$user" = '65532:65532'
           docker run -d --name s07-smoke -p 8080:8080 --read-only --cap-drop=ALL --security-opt=no-new-privileges aulaviva-api:local
           trap 'docker logs s07-smoke; docker rm -f s07-smoke' EXIT
-          curl --retry 20 --retry-connrefused --retry-delay 1 --fail http://localhost:8080/readyz
+          curl --retry 20 --retry-all-errors --retry-connrefused --retry-delay 1 --retry-max-time 60 --fail http://localhost:8080/readyz
           for attempt in $(seq 1 40); do
             status=$(docker inspect s07-smoke --format '{{.State.Health.Status}}')
             if [ "$status" = healthy ]; then break; fi
@@ -80,7 +80,7 @@ jobs:
           kubectl port-forward -n equipo-02 service/aulaviva-api 8080:80 > /tmp/s07-forward.log 2>&1 &
           forward_pid=$!
           trap 'kill "$forward_pid" || true' EXIT
-          curl --retry 20 --retry-connrefused --retry-delay 1 --fail http://localhost:8080/readyz | tee artifacts/http-ready.json
+          curl --retry 20 --retry-all-errors --retry-connrefused --retry-delay 1 --retry-max-time 60 --fail http://localhost:8080/readyz | tee artifacts/http-ready.json
           for attempt in $(seq 1 36); do
             if kubectl top pods -n equipo-02 > artifacts/top-initial.txt; then break; fi
             sleep 5
