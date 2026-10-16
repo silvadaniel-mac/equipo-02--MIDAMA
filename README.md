@@ -1,25 +1,43 @@
-# AulaViva · Equipo MIDAMA
+# AulaViva
 
-Plataforma educativa SaaS multi-tenant con tutor de inteligencia artificial, orientada a colegios. Proyecto de aula de Taller de Ingeniería de Software.
+**Plataforma educativa SaaS multi-tenant del equipo MIDAMA**  
+Proyecto de aula de Taller de Ingeniería de Software. Integra el diseño de gestión académica, contenidos, evaluaciones y tutor de inteligencia artificial.
 
-**[Índice de documentación](docs/README.md)** · **[Avance S07](docs/sesiones/s07-contenedores-kubernetes-iac.md)** · **[Charter y equipo](CHARTER.md)**
+[Documentación del proyecto](docs/README.md) · [Entrega S07](docs/sesiones/s07-contenedores-kubernetes-iac.md) · [Equipo y alcance](CHARTER.md)
 
-## Avances del proyecto
+## Avances por sesión
 
-| Área | Documentación o implementación |
+| Etapa | Trabajo incorporado | Acceso |
+| --- | --- | --- |
+| Definición | Propósito, roles, requisitos y backlog | [Charter](CHARTER.md) · [Backlog](docs/backlog.md) · [Impact map](docs/impact-map.md) |
+| Arquitectura | Modelo C4, decisiones técnicas y servicios cloud | [Diagramas C4](docs/c4/README.md) · [ADRs](docs/ADR/README.md) |
+| S05 · Contrato API | OpenAPI 3.1, cliente TypeScript, ejemplos y pruebas | [Guía de API](docs/api/README.md) · [Contrato](api/openapi.yaml) |
+| S06 · Datos y eventos | Bounded Contexts, DER y catálogo de eventos | [Modelo de datos](docs/data/README.md) |
+| S07 · Plataforma | Contenedor distroless, Kubernetes, HPA y Terraform | [Guía de entrega](docs/sesiones/s07-contenedores-kubernetes-iac.md) |
+
+## S07 · Contenedores, Kubernetes e IaC
+
+La entrega incorpora una base ejecutable del backend Node.js para comprobar construcción, despliegue y escalamiento en un clúster local.
+
+| Componente | Implementación |
 | --- | --- |
-| Alcance y requisitos | [Charter](CHARTER.md), [backlog](docs/backlog.md), [impact map](docs/impact-map.md) |
-| Arquitectura | [C4](docs/c4/README.md), [decisiones ADR](docs/ADR/README.md) |
-| API S05 | [Guía](docs/api/README.md), [OpenAPI 3.1](api/openapi.yaml), [versionado](docs/api/versioning-policy.md), [cliente TypeScript](packages/api-client/README.md) |
-| Datos y eventos S06 | [Índice del modelo](docs/data/README.md) |
-| Contenedores e IaC S07 | [Dockerfile](Dockerfile), [Kubernetes](k8s/README.md), [Terraform](terraform/README.md), [ADR plataforma](docs/ADR/0005-plataforma-k8s.md) |
+| Docker | Build multi-stage, runtime distroless, usuario no root y healthcheck |
+| Kubernetes | Deployment, Service, Ingress, ConfigMap, probes y HPA de 2 a 5 réplicas |
+| Terraform | Módulo de namespace y Secret ficticio, raíz local y configuración de backend S3 |
+| Automatización | Pruebas HTTP, validación de infraestructura, laboratorio kind y prueba de carga |
+| Decisión técnica | [ADR de plataforma](docs/ADR/0005-plataforma-k8s.md), con alternativas y justificación |
 
-## Ejecutar la base del servicio S07
+**Guías:** [Docker y Kubernetes](k8s/README.md) · [Terraform](terraform/README.md) · [Evidencias y validaciones](docs/evidencias/s07/README.md)
 
-Con Node.js 24:
+El servicio S07 expone salud y disponibilidad. Los endpoints académicos del contrato S05, la persistencia y el tutor IA todavía requieren implementación. Las rutas `/api/` responden `501` para identificar ese alcance.
+
+## Inicio rápido
+
+Con Node.js 24, ejecutar desde la raíz del proyecto:
 
 ```bash
-node --test services/api/server.test.mjs
+npm ci
+npm run platform:test
 node services/api/server.mjs
 ```
 
@@ -31,23 +49,31 @@ curl http://localhost:8080/healthz
 curl http://localhost:8080/readyz
 ```
 
-Esta es la base operativa del laboratorio. Los endpoints de negocio definidos en OpenAPI aún no están implementados y responden `501` bajo `/api/`. No incluye autenticación, base de datos ni tutor IA funcional.
+Para ejecutar el contenedor en kind, seguir la [guía del laboratorio](k8s/README.md).
 
-Para construir y desplegar el contenedor en kind, seguir la [guía S07](k8s/README.md).
-
-## Validar el contrato S05
+## Validación del contrato API
 
 ```bash
-npm ci
 npm run api:check
 ```
 
-Ejecutar `npm run api:mock` en una terminal y `npm run api:examples` en otra. `npm run api:docs` genera la referencia Redoc.
+Para probar los ejemplos, ejecutar `npm run api:mock` en una terminal y `npm run api:examples` en otra. `npm run api:docs` genera la documentación Redoc.
 
-[Swagger UI del contrato en main](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/silvadaniel-mac/equipo-02--MIDAMA/main/api/openapi.yaml).
+## Organización del repositorio
 
-## Evidencias S07
+| Ruta | Contenido |
+| --- | --- |
+| `api/` | Contrato OpenAPI y ejemplos HTTP |
+| `services/api/` | Servicio ejecutable S07 y pruebas |
+| `packages/api-client/` | Cliente TypeScript generado desde el contrato |
+| `k8s/` | Manifiestos Kubernetes y carga de laboratorio |
+| `terraform/` | Infraestructura como código y módulo reutilizable |
+| `scripts/` | Ejemplos, despliegue por digest y verificación HPA |
+| `docs/` | Arquitectura, requisitos, sesiones y evidencias |
+| `.github/workflows/` | Validaciones automáticas del proyecto |
 
-El workflow `Plataforma S07` ejecuta pruebas del servicio, build distroless, validación de Terraform y laboratorio kind con HPA. Sus resultados y archivos se consultan en [GitHub Actions](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions).
+## Estado de validación
 
-**Captura solicitada por el PPT:** pendiente de adjuntar una captura real de `kubectl get all -n equipo-02`. Los logs automáticos se guardan como artefactos de Actions, pero no sustituyen esa captura. Estado detallado en la [matriz de entrega](docs/sesiones/s07-contenedores-kubernetes-iac.md#matriz-de-entrega-y-evidencias).
+Los resultados de cada commit se consultan en [GitHub Actions](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions). Una cruz roja indica que una ejecución falló; un círculo amarillo, que sigue pendiente o en curso; una marca verde, que terminó correctamente. Los resultados antiguos permanecen en el historial aunque una ejecución posterior corrija el problema.
+
+La [matriz S07](docs/sesiones/s07-contenedores-kubernetes-iac.md#matriz-de-entrega-y-evidencias) distingue los archivos implementados de sus evidencias de ejecución. Para cerrar la entrega se debe incorporar al README una captura real de `kubectl get all -n equipo-02`, conservar el resultado de HPA, publicar GHCR por digest y verificar el backend remoto cuando el equipo disponga de la cuenta correspondiente.
