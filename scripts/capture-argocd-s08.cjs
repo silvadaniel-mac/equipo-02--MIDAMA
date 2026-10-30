@@ -5,7 +5,7 @@ const path = require('node:path');
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, ignoreHTTPSErrors: true });
   await page.goto('https://127.0.0.1:8443', { waitUntil: 'networkidle' });
-  await page.getByPlaceholder('Username', { exact: true }).fill('admin');
+  await page.getByRole('textbox').first().fill('admin');
   await page.locator('input[type=password]').fill(process.env.ARGO_PASSWORD);
   await page.getByRole('button', { name: /sign in/i }).click();
   await page.getByText('aulaviva-dev', { exact: true }).first().waitFor();
