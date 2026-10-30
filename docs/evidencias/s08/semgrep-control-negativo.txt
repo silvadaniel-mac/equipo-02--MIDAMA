@@ -1,0 +1,32 @@
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 1 file tracked by git with 4 Code rules:
+  Scanning 1 file with 4 js rules.
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 1 (1 blocking)
+ • Rules run: 4
+ • Targets scanned: 1
+ • Parsed lines: ~100.0%
+ • No ignore information available
+Ran 4 rules on 1 file: 1 finding.
+                  
+                  
+┌────────────────┐
+│ 1 Code Finding │
+└────────────────┘
+                                    
+    /tmp/s08-sast-negative/unsafe.js
+   ❯❯❱ repo.no-dynamic-code
+          ❰❰ Blocking ❱❱
+          No ejecutar código dinámico con eval o Function.
+                                                          
+            1┆ eval(process.argv[2]);
+

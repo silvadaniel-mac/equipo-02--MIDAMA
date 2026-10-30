@@ -1,0 +1,242 @@
+name: AulaViva S08 CI GitOps
+on:
+  pull_request:
+  push:
+    branches: [main, feature/s08-ci-gitops]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s08-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  quality:
+    name: quality (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - name: Tests y cobertura bloqueante del servidor (70%)
+        run: |
+          mkdir -p artifacts
+          set -o pipefail
+          npm run test:coverage | tee artifacts/coverage.txt
+      - run: npm run api:check
+      - run: git diff --exit-code -- packages/api-client/src/schema.d.ts
+      - name: SCA de dependencias de ejecución
+        run: npm audit --omit=dev --audit-level=high
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s08-quality-node-${{ matrix.node }}
+          path: artifacts/
+  sast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install semgrep==1.183.0
+      - name: Semgrep bloqueante con reglas versionadas
+        run: |
+          mkdir -p artifacts
+          semgrep scan --config .semgrep.yml --error --strict --metrics=off --json-output artifacts/semgrep.json services/api scripts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s08-sast
+          path: artifacts/
+  build-and-push:
+    needs: [quality, sast]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    outputs:
+      image: ${{ steps.image.outputs.name }}
+      digest: ${{ steps.publish.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Nombre y tag inmutable por commit
+        id: image
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "name=ghcr.io/$owner/aulaviva-api" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: aulaviva-api:${{ github.sha }}
+          build-args: RELEASE_SHA=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke HTTP y seguridad del contenedor
+        run: |
+          mkdir -p artifacts
+          docker run -d --name s08-smoke -p 8080:8080 --read-only --cap-drop=ALL --security-opt=no-new-privileges aulaviva-api:${{ github.sha }}
+          trap 'docker logs s08-smoke; docker rm -f s08-smoke' EXIT
+          curl --retry 20 --retry-all-errors --retry-connrefused --retry-delay 1 --fail http://localhost:8080/readyz | tee artifacts/ready.json
+          curl --fail http://localhost:8080/ | tee artifacts/release.json
+          test "$(docker inspect s08-smoke --format '{{.Config.User}}')" = '65532:65532'
+      - name: Trivy bloqueante HIGH y CRITICAL (incluye sin corrección)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: aulaviva-api:${{ github.sha }}
+          format: json
+          output: artifacts/trivy.json
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - name: Exportar imagen para laboratorio
+        run: docker save aulaviva-api:${{ github.sha }} -o artifacts/image.tar
+      - uses: docker/login-action@v3
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publicar imagen con tag SHA
+        id: publish
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          IMAGE: ${{ steps.image.outputs.name }}
+          APP_SHA: ${{ github.sha }}
+        run: |
+          docker tag "aulaviva-api:$APP_SHA" "$IMAGE:$APP_SHA"
+          docker push "$IMAGE:$APP_SHA"
+          digest=$(docker inspect "$IMAGE:$APP_SHA" --format '{{index .RepoDigests 0}}' | cut -d@ -f2)
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          printf '%s@%s\n' "$IMAGE" "$digest" | tee artifacts/image-digest.txt
+          echo "Imagen publicada: \`$IMAGE:$APP_SHA\`" >> "$GITHUB_STEP_SUMMARY"
+      - uses: sigstore/cosign-installer@v3.8.2
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Firmar por OIDC sin clave persistente
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          IMAGE: ${{ steps.image.outputs.name }}
+          DIGEST: ${{ steps.publish.outputs.digest }}
+        run: cosign sign --yes "$IMAGE@$DIGEST"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s08-image-${{ github.sha }}
+          path: artifacts/
+          retention-days: 7
+  gitops-lab:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: s08-image-${{ github.sha }}
+          path: artifacts/
+      - run: docker load -i artifacts/image.tar
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: v1.32.2
+      - uses: helm/kind-action@v1.12.0
+        with:
+          cluster_name: aulaviva-s08
+          version: v0.27.0
+      - name: Argo CD real y reconciliación de laboratorio
+        env:
+          APP_SHA: ${{ github.sha }}
+          SOURCE_REF: ${{ github.head_ref || github.ref_name }}
+        run: bash scripts/lab-gitops-s08.sh
+      - name: Captura real de Argo CD
+        run: |
+          kubectl port-forward -n argocd svc/argocd-server 8443:443 >/tmp/argocd-forward.log 2>&1 &
+          mkdir -p /tmp/s08-browser
+          cd /tmp/s08-browser
+          npm init -y >/dev/null
+          npm install --save-exact playwright@1.56.1
+          npx playwright install --with-deps chromium
+          cp "$GITHUB_WORKSPACE/scripts/capture-argocd-s08.cjs" capture.cjs
+          password=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)
+          echo "::add-mask::$password"
+          ARGO_PASSWORD="$password" OUTPUT_DIR="$GITHUB_WORKSPACE/artifacts" node capture.cjs
+      - name: Diagnóstico final
+        if: always()
+        run: |
+          mkdir -p artifacts
+          kubectl get applications -n argocd -o yaml > artifacts/argocd-applications.yaml 2>&1 || true
+          kubectl get pods -A -o wide > artifacts/pods.txt 2>&1 || true
+          rm -f artifacts/image.tar
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s08-argocd-${{ github.sha }}
+          path: artifacts/
+          retention-days: 30
+  promote:
+    needs: [build-and-push, gitops-lab]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar promoción auditable por digest
+        env:
+          IMAGE: ${{ needs.build-and-push.outputs.image }}
+          DIGEST: ${{ needs.build-and-push.outputs.digest }}
+        run: |
+          mkdir -p artifacts
+          printf 'app_sha=%s\nimage=%s@%s\n' "$GITHUB_SHA" "$IMAGE" "$DIGEST" > artifacts/promotion.txt
+          cp -a gitops artifacts/equipo-02-gitops
+          sed -i "s|newTag: bootstrap|digest: $DIGEST|" artifacts/equipo-02-gitops/overlays/dev/kustomization.yaml
+      - name: Crear token temporal para el repositorio GitOps
+        id: token
+        if: vars.GITOPS_REPOSITORY != ''
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.GITOPS_APP_ID }}
+          private-key: ${{ secrets.GITOPS_APP_PRIVATE_KEY }}
+          owner: ${{ vars.GITOPS_OWNER }}
+          repositories: ${{ vars.GITOPS_REPO_NAME }}
+      - uses: actions/checkout@v4
+        if: vars.GITOPS_REPOSITORY != ''
+        with:
+          repository: ${{ vars.GITOPS_REPOSITORY }}
+          token: ${{ steps.token.outputs.token }}
+          path: gitops-checkout
+      - uses: azure/setup-kubectl@v4
+        if: vars.GITOPS_REPOSITORY != ''
+        with:
+          version: v1.32.2
+      - name: Abrir PR de promoción dev
+        if: vars.GITOPS_REPOSITORY != ''
+        working-directory: gitops-checkout
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          GITOPS_REPOSITORY: ${{ vars.GITOPS_REPOSITORY }}
+          APP_SHA: ${{ github.sha }}
+          IMAGE_DIGEST: ${{ needs.build-and-push.outputs.digest }}
+        run: bash ../scripts/promote-s08.sh
+      - name: Estado de conexión entre repositorios
+        if: vars.GITOPS_REPOSITORY == ''
+        run: |
+          echo '::warning::Promoción preparada, no desplegada: faltan repositorio GitOps y GitHub App. Ver docs/sesiones/s08-ci-cd-gitops.md.'
+          echo '## Promoción externa pendiente' >> "$GITHUB_STEP_SUMMARY"
+          echo 'El artefacto contiene el repo GitOps resuelto por digest. Falta crear el repo separado y configurar la GitHub App para abrir PR automáticamente.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s08-promotion-${{ github.sha }}
+          path: artifacts/

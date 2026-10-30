@@ -18,13 +18,19 @@
     "api:test": "node --test tests/contract.test.mjs",
     "api:docs": "redocly build-docs api/openapi.yaml -o docs/api/reference.html",
     "api:check": "npm run api:lint && npm run api:generate && npm run api:typecheck && npm run api:test",
-    "platform:test": "node --test services/api/server.test.mjs"
+    "platform:test": "node --test services/api/server.test.mjs",
+    "lint": "eslint services/api scripts/*.mjs tests/*.mjs eslint.config.mjs",
+    "format:check": "prettier --check services/api/*.mjs eslint.config.mjs .github/workflows/ci.yml gitops/**/*.yaml",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=services/api/server.mjs --test-coverage-lines=70 services/api/server.test.mjs",
+    "ci:quality": "npm run lint && npm run format:check && npm run test:coverage && npm run api:check"
   },
   "devDependencies": {
     "@redocly/cli": "2.60.0",
     "@stoplight/prism-cli": "5.16.0",
     "@stoplight/spectral-cli": "6.17.0",
+    "eslint": "9.39.5",
     "openapi-typescript": "7.13.0",
+    "prettier": "3.9.10",
     "typescript": "5.9.3",
     "yaml": "2.8.1"
   }

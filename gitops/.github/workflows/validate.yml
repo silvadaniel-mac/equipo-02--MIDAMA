@@ -1,0 +1,20 @@
+name: GitOps manifests
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: v1.32.2
+      - run: |
+          kubectl kustomize overlays/dev > /tmp/dev.yaml
+          kubectl kustomize overlays/prod > /tmp/prod.yaml
+          test -s /tmp/dev.yaml
+          test -s /tmp/prod.yaml

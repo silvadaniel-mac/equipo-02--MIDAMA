@@ -1,0 +1,29 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> aulaviva-contract@1.0.0 test:coverage
+> node --test --experimental-test-coverage --test-coverage-include=services/api/server.mjs --test-coverage-lines=70 services/api/server.test.mjs
+
+✔ probes separan proceso vivo de disponibilidad durante cierre (38.469547ms)
+✔ la base de despliegue no simula casos de negocio implementados (15.524412ms)
+✔ la carga sintética está deshabilitada por defecto (4.987191ms)
+✔ la carga sintética se puede activar expresamente para el laboratorio (43.860933ms)
+✔ la raíz identifica servicio, etapa y release sin implementar negocio (3.341311ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 220.451875
+ℹ start of coverage report
+ℹ -------------------------------------------------------------
+ℹ file         | line % | branch % | funcs % | uncovered lines
+ℹ -------------------------------------------------------------
+ℹ services     |        |          |         | 
+ℹ  api         |        |          |         | 
+ℹ   server.mjs |  75.76 |    95.83 |   66.67 | 51-66
+ℹ -------------------------------------------------------------
+ℹ all files    |  75.76 |    95.83 |   66.67 | 
+ℹ -------------------------------------------------------------
+ℹ end of coverage report
