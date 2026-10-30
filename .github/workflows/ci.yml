@@ -95,7 +95,7 @@ jobs:
           curl --fail http://localhost:8080/ | tee artifacts/release.json
           test "$(docker inspect s08-smoke --format '{{.Config.User}}')" = '65532:65532'
       - name: Trivy bloqueante HIGH y CRITICAL (incluye sin corrección)
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: aulaviva-api:${{ github.sha }}
           format: json
