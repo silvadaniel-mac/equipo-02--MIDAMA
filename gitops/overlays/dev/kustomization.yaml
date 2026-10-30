@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: aulaviva-dev
+resources:
+  - ../../base
+  - namespace.yaml
+replicas:
+  - name: aulaviva-api
+    count: 1
+images:
+  - name: ghcr.io/silvadaniel-mac/aulaviva-api
+    newTag: bootstrap

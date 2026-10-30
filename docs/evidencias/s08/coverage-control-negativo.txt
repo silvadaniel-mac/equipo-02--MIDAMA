@@ -1,0 +1,25 @@
+✔ probes separan proceso vivo de disponibilidad durante cierre (33.070373ms)
+✔ la base de despliegue no simula casos de negocio implementados (13.382449ms)
+✔ la carga sintética está deshabilitada por defecto (3.574305ms)
+✔ la carga sintética se puede activar expresamente para el laboratorio (43.792758ms)
+✔ la raíz identifica servicio, etapa y release sin implementar negocio (3.379308ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 198.406472
+ℹ Error: 75.76% line coverage does not meet threshold of 100%.
+ℹ start of coverage report
+ℹ -------------------------------------------------------------
+ℹ file         | line % | branch % | funcs % | uncovered lines
+ℹ -------------------------------------------------------------
+ℹ services     |        |          |         | 
+ℹ  api         |        |          |         | 
+ℹ   server.mjs |  75.76 |    95.83 |   66.67 | 51-66
+ℹ -------------------------------------------------------------
+ℹ all files    |  75.76 |    95.83 |   66.67 | 
+ℹ -------------------------------------------------------------
+ℹ end of coverage report

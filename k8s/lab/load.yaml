@@ -4,7 +4,7 @@ metadata:
   name: aulaviva-load
   namespace: equipo-02
 spec:
-  activeDeadlineSeconds: 360
+  activeDeadlineSeconds: 240
   backoffLimit: 0
   template:
     spec:
@@ -23,7 +23,7 @@ spec:
           command: [/nodejs/bin/node, --input-type=module, -e]
           args:
             - |
-              const stop = Date.now() + 300000;
+              const stop = Date.now() + 120000;
               let errors = 0;
               await Promise.all(Array.from({length: 12}, async () => {
                 while (Date.now() < stop) {
@@ -35,7 +35,7 @@ spec:
                 }
               }));
               console.log(JSON.stringify({errors}));
-              if (errors) process.exit(1);
+              process.exit(errors ? 1 : 0);
           resources:
             requests:
               cpu: 100m

@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: aulaviva
+  namespace: argocd
+spec:
+  description: AulaViva MIDAMA, ambientes de desarrollo y producción
+  sourceRepos:
+    - https://github.com/miguelbriceno-sys/equipo-02-gitops.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: aulaviva-dev
+    - server: https://kubernetes.default.svc
+      namespace: aulaviva-prod
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: apps
+      kind: Deployment
+    - group: ''
+      kind: Service

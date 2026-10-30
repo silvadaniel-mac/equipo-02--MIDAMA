@@ -9,7 +9,8 @@ RUN node --check server.mjs && node --test server.test.mjs
 
 FROM ${RUNTIME_IMAGE} AS runtime
 WORKDIR /app
-ENV NODE_ENV=production PORT=8080
+ARG RELEASE_SHA=local
+ENV NODE_ENV=production PORT=8080 RELEASE_SHA=${RELEASE_SHA}
 COPY --from=build --chown=65532:65532 /build/server.mjs ./server.mjs
 USER 65532:65532
 EXPOSE 8080

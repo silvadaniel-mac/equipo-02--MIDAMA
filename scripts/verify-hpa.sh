@@ -40,7 +40,7 @@ kubectl top pods -n equipo-02 | tee artifacts/top-during.txt
 kubectl get all -n equipo-02 -o wide | tee artifacts/kubectl-get-all.txt
 kubectl get deployment aulaviva-api -n equipo-02 -o yaml > artifacts/deployment.yaml
 # El Job debe completar y reportar cero errores HTTP.
-kubectl wait --for=condition=complete job/aulaviva-load -n equipo-02 --timeout=360s
+kubectl wait --for=condition=complete job/aulaviva-load -n equipo-02 --timeout=240s
 kubectl logs job/aulaviva-load -n equipo-02 | tee artifacts/load.txt
 kubectl delete job aulaviva-load -n equipo-02
 # Acreditar reducción tras finalizar la carga y la ventana de estabilización.

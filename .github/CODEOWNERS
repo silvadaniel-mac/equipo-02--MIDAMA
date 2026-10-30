@@ -1,0 +1,4 @@
+# El dueño debe activar Require review from Code Owners y dos aprobaciones.
+/.github/ @miguelbriceno-sys @silvadaniel-mac
+/gitops/ @miguelbriceno-sys @silvadaniel-mac
+/docs/adr/ @miguelbriceno-sys @silvadaniel-mac

@@ -77,3 +77,8 @@ Para probar los ejemplos, ejecutar `npm run api:mock` en una terminal y `npm run
 Los resultados de cada commit se consultan en [GitHub Actions](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions). Una cruz roja indica que una ejecución falló; un círculo amarillo, que sigue pendiente o en curso; una marca verde, que terminó correctamente. Los resultados antiguos permanecen en el historial aunque una ejecución posterior corrija el problema.
 
 La [matriz S07](docs/sesiones/s07-contenedores-kubernetes-iac.md#matriz-de-entrega-y-evidencias) distingue los archivos implementados de sus evidencias de ejecución. Para cerrar la entrega se debe incorporar al README una captura real de `kubectl get all -n equipo-02`, conservar el resultado de HPA, publicar GHCR por digest y verificar el backend remoto cuando el equipo disponga de la cuenta correspondiente.
+
+
+## Sesión 08: CI/CD y GitOps
+
+Pipeline con quality gates, publicación GHCR por SHA y laboratorio Argo CD. Consultar [implementación y pasos de conexión](docs/sesiones/s08-ci-cd-gitops.md) y [ADR 0005](docs/adr/0005-gitops-strategy.md). El paquete exportable del repositorio separado está en [gitops/](gitops/). La creación del repo externo y sus protecciones requiere al dueño de la cuenta.
