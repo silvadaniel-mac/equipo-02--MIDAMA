@@ -1,40 +1,86 @@
-# S09 · DevSecOps I
+# S09 · DevSecOps I — Implementación y evidencias
 
 ## Objetivo
 
-Extender el pipeline verde de S08 con seguridad temprana. Base revisada: `7f3627a`, con CI S08 verde en [run 40998232686](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/40998232686).
+Extender el pipeline CI/CD de la sesión 08 mediante controles de seguridad automatizados, incorporando análisis estático de código, análisis de dependencias, búsqueda de secretos y modelado de amenazas.
 
-| Requisito de diapositiva 7 | Implementación | Evidencia necesaria |
+Proyecto: AulaViva — Equipo MIDAMA.
+Rama principal: `main`.
+Pull Request: [#7 — DevSecOps S09](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/pull/7).
+Commit de integración: `63dade0`.
+
+## Verificación de requisitos
+
+| Requisito | Implementación y evidencia | Estado |
 | --- | --- | --- |
-| SAST, SCA y secrets en paralelo | security.yml reusable, llamado desde ci.yml | Tres checks verdes en el PR |
-| OWASP + dos reglas propias | p/owasp-top-ten, .semgrep/aulaviva.yml y reglas S08 | Reporte Semgrep y pruebas con casos seguros/inseguros |
-| Trivy filesystem HIGH/CRITICAL con parche | include-dev-deps, ignore-unfixed, exit-code 1 | trivy.json del run |
-| SBOM CycloneDX | Trivy genera artifacts/sbom.json y valida estructura/componentes | Artefacto s09-sca-sbom-SHA descargable |
-| Gitleaks con historial | checkout fetch-depth 0 y git --log-opts=--all | Reporte redacted del run |
-| STRIDE aplicado | docs/threat-model.md, activos, flujos, límites y ocho amenazas | Documento y tabla de mitigación |
-| Re-triage y VEX | README y plantilla OpenVEX sin aprobación automática | PR con remediación o justificación de hallazgos |
-| Protección de rama | Falta activar, lectura API indica protected=false | Captura de configuración por administrador |
-| Cuenta Semgrep free | No creada/vinculada. CLI usa reglas públicas sin token | Registrar cuenta del equipo si el docente exige este prerrequisito literal |
+| SAST, SCA y Secrets en paralelo | Workflows `security.yml` y `ci.yml`; tres checks verdes en el PR #7 | Completado |
+| OWASP y dos reglas propias | Semgrep con reglas públicas y `.semgrep/aulaviva.yml`, con pruebas de patrones seguros e inseguros | Implementado |
+| Trivy HIGH/CRITICAL | Escaneo de dependencias con bloqueo de hallazgos según la política configurada | Completado |
+| SBOM CycloneDX | Artefacto remoto `s09-sca-sbom` generado y descargado | Completado |
+| Gitleaks con historial | Análisis de secretos mediante GitHub Actions y reporte del último run | Completado |
+| STRIDE | Modelo y mitigaciones descritos en `docs/threat-model.md` | Documentado |
+| Remediación y VEX | Correcciones documentadas en `docs/security/remediation-s09.md`; plantilla OpenVEX disponible | Documentado |
+| Evidencia de PR | Checks SAST, SCA, Secrets, Quality, Build y GitOps aprobados en PR #7 | Completado |
+| Protección de main | Requiere permisos administrativos del propietario, actualmente sin acceso a su cuenta | Pendiente por permisos |
+| Cuenta Semgrep gratuita | CLI funcional sin vinculación a una cuenta del equipo | Pendiente de confirmar si se exige |
+| Retención externa de cinco años | No existe almacenamiento externo configurado para esa retención | Pendiente |
 
-## Ejecución local
+## Resultados de GitHub Actions
 
-```bash
-npm ci
-npm run ci:quality
-semgrep --test --config .semgrep/aulaviva.yml tests/security/aulaviva.js
-semgrep scan --config p/owasp-top-ten --config .semgrep/ --config .semgrep.yml --error --strict --metrics=off services packages scripts
-trivy fs --scanners vuln --include-dev-deps --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 .
-trivy fs --format cyclonedx --include-dev-deps --output sbom.json .
-python3 scripts/validate-sbom.py sbom.json
-gitleaks git --log-opts="--all" --redact .
-```
+El PR #7 fue integrado a `main` con los controles automáticos aprobados. Entre ellos se verificaron:
 
-Las pruebas sintéticas viven fuera de los objetivos de SAST productivo y solo se usan en `semgrep --test`. Sus cuatro patrones vulnerables deben detectarse y sus dos ejemplos seguros no deben detectarse. Los resultados locales no reemplazan un run de GitHub Actions.
+- `security / sast`
+- `security / sca`
+- `security / secrets`
+- `quality (Node 22)` y `quality (Node 24)`
+- `sast`
+- `build-and-push`
+- `gitops-lab`
 
-## Retención
+El trabajo `promote` se omitió por diseño durante el Pull Request. Esto no constituye un error.
 
-SAST y secretos: 30 días. SBOM y SCA: 90 días, sujeto al máximo de GitHub del repositorio. La recomendación de cinco años de la diapositiva 6 necesita almacenamiento externo con política de retención y acceso controlado, todavía no configurado. El mini-lab exige el artefacto del último run.
+Luego de la integración, se ejecutó manualmente `AulaViva S09 Security #1` sobre `main` y se obtuvieron resultados exitosos en los tres análisis de seguridad.
 
-## Cierre
+## Evidencias y artefactos
 
-Abrir PR feature/s09-devsecops hacia main, adjuntar el plan de remediación y esperar todos los checks. Capturar el PR con sus tres checks. No integrar ni declarar completada la entrega mientras falten ese run, el SBOM remoto o protección de rama.
+- PR integrado y checks: https://github.com/silvadaniel-mac/equipo-02--MIDAMA/pull/7
+- Evidencia del run del PR: https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/42123456710
+- Evidencias locales y documentación: `docs/evidencias/s09/`
+- Modelo de amenazas: `docs/threat-model.md`
+- Correcciones de seguridad: `docs/security/remediation-s09.md`
+
+Los reportes descargados del último workflow manual en `main` incluyen SAST, SCA/SBOM y Secrets. Los reportes revisados no registran hallazgos en el alcance analizado. Esto no garantiza ausencia de vulnerabilidades fuera de ese alcance.
+
+## Remediaciones realizadas
+
+Durante el desarrollo se detectaron dependencias vulnerables y un problema de seguridad asociado a bibliotecas de la imagen Docker.
+
+Se reemplazó la dependencia vulnerable del servidor de simulación de API y se corrigió la composición del contenedor usando una base Distroless no root. Las decisiones, pruebas y cambios se encuentran descritos en `docs/security/remediation-s09.md`.
+
+No se desactivaron los controles de seguridad para forzar la aprobación del pipeline.
+
+## Modelo de amenazas STRIDE
+
+El análisis STRIDE identifica riesgos de suplantación de identidad, manipulación de datos, repudio, divulgación de información, denegación de servicio y elevación de privilegios.
+
+Se distinguen controles ya implementados de mitigaciones futuras, dado que los endpoints académicos, la autenticación de negocio y la persistencia todavía no están completamente implementados.
+
+## Limitaciones pendientes
+
+### Protección de la rama principal
+
+La protección de `main` no pudo activarse porque requiere permisos administrativos. El propietario del repositorio no tiene actualmente acceso a su cuenta. Esta limitación se declara expresamente y no se presenta como tarea completada.
+
+### Cuenta Semgrep
+
+El análisis mediante Semgrep CLI funciona con las reglas configuradas, pero no se ha confirmado una cuenta gratuita vinculada al equipo.
+
+### Retención de evidencias
+
+La configuración actual del workflow contempla retención de 30 días para SAST y Secrets y 90 días para SCA/SBOM, sujeta a los límites del repositorio. La retención externa a cinco años queda pendiente.
+
+## Conclusión
+
+La sesión 09 permitió incorporar prácticas DevSecOps al proyecto AulaViva. Se integraron análisis de código, dependencias y secretos, se generó un SBOM, se documentó el modelo STRIDE y se corrigieron vulnerabilidades detectadas durante el desarrollo.
+
+El PR #7 fue integrado y las ejecuciones verificadas finalizaron correctamente. La protección de la rama principal y los prerrequisitos administrativos quedan expresamente pendientes, sin afectar las evidencias técnicas ya obtenidas.
