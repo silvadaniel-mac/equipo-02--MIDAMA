@@ -12,7 +12,7 @@ info:
     identifier: MIT
 servers:
 - url: http://127.0.0.1:4010
-  description: Mock Prism local
+  description: Mock OpenAPI local
 tags:
 - name: Académico
   description: Contenidos, notas e informes por colegio.

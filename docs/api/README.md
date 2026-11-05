@@ -22,7 +22,7 @@ El enlace usa el Swagger UI público y carga directamente el YAML canónico de `
 | Spectral | `.spectral.yaml`, summary obligatorio y kebab-case |
 | Cliente generado | `packages/api-client/src/schema.d.ts`, generador reproducible y transporte openapi-fetch |
 | Versionado | `docs/api/versioning-policy.md` |
-| Bonus | Prism, pruebas y workflow CI |
+| Bonus | Scalar, pruebas y workflow CI |
 
 ## Límites y próximos pasos S06
 

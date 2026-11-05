@@ -17,9 +17,9 @@ jobs:
       - run: npm ci
       - run: npm run api:check
       - run: git diff --exit-code -- packages/api-client/src/schema.d.ts
-      - name: Ejemplos contra Prism
+      - name: Ejemplos contra el mock OpenAPI
         run: |
-          npm run api:mock > /tmp/prism.log 2>&1 &
+          npm run api:mock > /tmp/openapi-mock.log 2>&1 &
           MOCK_PID=$!
           trap 'kill "$MOCK_PID" || true' EXIT
           for attempt in $(seq 1 30); do
