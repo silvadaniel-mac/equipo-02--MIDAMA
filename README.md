@@ -82,3 +82,19 @@ La [matriz S07](docs/sesiones/s07-contenedores-kubernetes-iac.md#matriz-de-entre
 ## Sesión 08: CI/CD y GitOps
 
 Pipeline con quality gates, publicación GHCR por SHA y laboratorio Argo CD. Consultar [implementación y pasos de conexión](docs/sesiones/s08-ci-cd-gitops.md) y [ADR 0005](docs/adr/0005-gitops-strategy.md). El paquete exportable del repositorio separado está en [gitops/](gitops/). La creación del repo externo y sus protecciones requiere al dueño de la cuenta.
+
+## Sesión 09: DevSecOps y shift-left
+
+[Guía S09](docs/sesiones/s09-devsecops.md) · [Modelo STRIDE](docs/threat-model.md) · [Evidencias](docs/evidencias/s09/README.md).
+
+El workflow S08 llama a `.github/workflows/security.yml`. Sus jobs `sast`, `sca` y `secrets` corren en paralelo. `build-and-push` depende también de `security`: un fallo impide construir/publicar/promover. SAST combina `p/owasp-top-ten`, las reglas previas y dos reglas propias en `.semgrep/`, con pruebas positivas y negativas. Trivy filesystem incluye dependencias de desarrollo y bloquea HIGH/CRITICAL con parche disponible. El inventario CycloneDX se publica como `sbom.json` dentro del artefacto `s09-sca-sbom-<SHA>`. Gitleaks revisa todo el historial alcanzable con checkout completo.
+
+### Cómo re-triar hallazgos y solicitar excepciones VEX
+
+1. Abrir el run del PR y descargar los reportes `s09-sast-*`, `s09-sca-sbom-*` y `s09-secrets-*`. Registrar regla/CVE, paquete y versión, ruta, commit y evidencia. Nunca pegar un secreto real en un issue.
+2. Evaluar exposición desde red, alcance al código vulnerable, impacto en datos de menores y uso en runtime o herramientas de CI. Priorizar Critical < 7 días, High < 30 y Medium < 90. Revocar de inmediato cualquier credencial real.
+3. Preferir actualización, eliminación de la dependencia o corrección del código. Ejecutar nuevamente los tres controles sobre el nuevo SHA y adjuntar resultados. Los hallazgos sin parche se revisan igualmente aunque `--ignore-unfixed` no los bloquee.
+4. Si un CVE no aplica, abrir un PR con un documento OpenVEX bajo `docs/security/`, usando la [plantilla](docs/security/vex-template.json). Completar producto/versión, identificador de vulnerabilidad, estado, justificación, evidencia técnica, responsable y vencimiento. Un mantenedor distinto del autor debe aprobar. Proponer máximo 30 días para High, 7 para Critical, sin superar el SLA.
+5. **El VEX documentado no desactiva automáticamente el gate.** Cualquier excepción al escáner debe ser limitada al CVE y componente exactos, revisada en ese mismo PR y con control de expiración automatizado antes de activarse. No se incorporan exclusiones globales ni una baseline para esconder hallazgos. Para falsos positivos de SAST, corregir la regla mediante PR con un test de regresión, sin `nosec` silencioso.
+
+El administrador debe activar protección de `main`, revisión de PR y checks obligatorios `security / sast`, `security / sca`, `security / secrets`, además de los existentes. Confirmar los nombres exactos después del primer run. Crear una cuenta Semgrep gratuita permite gestionar reglas en su plataforma, pero este escaneo usa reglas públicas sin token: no se afirma haber creado o vinculado una cuenta.

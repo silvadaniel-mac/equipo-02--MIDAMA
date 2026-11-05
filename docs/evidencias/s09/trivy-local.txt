@@ -1,0 +1,5 @@
+2026-11-05T20:33:26Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-11-05T20:33:27Z	INFO	[npm] Run "npm install" to collect the license information of packages	dir="node_modules"
+2026-11-05T20:33:27Z	INFO	Number of language-specific files	num=1
+2026-11-05T20:33:27Z	INFO	[npm] Detecting vulnerabilities...
+Trivy exit code: 1

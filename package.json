@@ -7,15 +7,15 @@
     "packages/api-client"
   ],
   "engines": {
-    "node": ">=22"
+    "node": ">=22.19.0"
   },
   "scripts": {
     "api:lint": "spectral lint api/openapi.yaml --fail-severity warn",
     "api:generate": "openapi-typescript api/openapi.yaml -o packages/api-client/src/schema.d.ts",
     "api:typecheck": "tsc -p packages/api-client/tsconfig.json --noEmit",
-    "api:mock": "prism mock api/openapi.yaml --host 127.0.0.1 --port 4010",
+    "api:mock": "node scripts/mock-api.mjs",
     "api:examples": "node scripts/run-examples.mjs",
-    "api:test": "node --test tests/contract.test.mjs",
+    "api:test": "node --test tests/contract.test.mjs tests/mock.test.mjs",
     "api:docs": "redocly build-docs api/openapi.yaml -o docs/api/reference.html",
     "api:check": "npm run api:lint && npm run api:generate && npm run api:typecheck && npm run api:test",
     "platform:test": "node --test services/api/server.test.mjs",
@@ -25,13 +25,17 @@
     "ci:quality": "npm run lint && npm run format:check && npm run test:coverage && npm run api:check"
   },
   "devDependencies": {
+    "@hono/node-server": "2.1.6",
     "@redocly/cli": "2.60.0",
-    "@stoplight/prism-cli": "5.16.0",
+    "@scalar/mock-server": "0.21.0",
     "@stoplight/spectral-cli": "6.17.0",
     "eslint": "9.39.5",
     "openapi-typescript": "7.13.0",
     "prettier": "3.9.10",
     "typescript": "5.9.3",
-    "yaml": "2.8.1"
+    "yaml": "2.9.1"
+  },
+  "overrides": {
+    "lodash": "4.18.1"
   }
 }

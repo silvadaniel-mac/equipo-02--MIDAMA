@@ -1,0 +1,9 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> aulaviva-contract@1.0.0 api:examples
+> node scripts/run-examples.mjs
+
+PASS 01-list-content.json (200)
+PASS 02-create-content.json (201)
+PASS 03-create-grade.json (201)
+PASS 04-tutor-query.json (201)

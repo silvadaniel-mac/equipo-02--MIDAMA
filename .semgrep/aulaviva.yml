@@ -1,0 +1,21 @@
+rules:
+  - id: aulaviva-no-dynamic-code
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: No ejecutar entrada como código. Usar funciones explícitas y validar los datos.
+    metadata:
+      category: security
+      cwe: 'CWE-95: Eval Injection'
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+  - id: aulaviva-no-disabled-tls
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Mantener la validación TLS para proteger datos académicos y credenciales.
+    metadata:
+      category: security
+      cwe: 'CWE-295: Improper Certificate Validation'
+    pattern-either:
+      - pattern: process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+      - pattern: '{rejectUnauthorized: false, ...}'

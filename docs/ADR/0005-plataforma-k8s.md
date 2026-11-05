@@ -14,7 +14,7 @@ El C4 y ADR 0003 sitúan el backend en ECS Fargate. El uso de Kubernetes en esta
 ## Decisión
 
 1. **kind** como distribución local sobre Docker. Es reproducible en el computador del equipo y en GitHub Actions. El clúster se llama `aulaviva` y el namespace `equipo-02`.
-2. **Node.js 24 con distroless Debian 13 nonroot** como runtime. El build usa Node 24 sobre la misma familia Debian y ejecuta chequeo de sintaxis y pruebas. La etapa final copia únicamente `server.mjs`; no instala npm, shell ni herramientas de depuración.
+2. **Node.js 24 con distroless Debian 13 nonroot** como runtime. El build usa Node 24 sobre la misma familia Debian y ejecuta chequeo de sintaxis y pruebas. En S09 se compone el runtime sobre `base-nossl-debian13`, copiando Node, libstdc++ y libgcc del runtime oficial, junto con su inventario y licencias. Node incorpora TLS y compresión; la biblioteca zlib1g del sistema, afectada por CVE-2026-76844, no se instala. Se comprueban gzip, TLS, hash y HTTP antes del escaneo bloqueante. La aplicación final copia únicamente `server.mjs`; no instala npm, shell ni herramientas de depuración.
 3. **Kustomize** para los cinco manifiestos exigidos. La composición por recursos alcanza para un servicio y evita introducir plantillas Helm innecesarias. Terraform es el único dueño del namespace y del Secret ficticio; Kustomize administra la aplicación.
 4. **Terraform** con provider Kubernetes y módulo reutilizable. La raíz `terraform/` exige backend S3 remoto con cifrado y locking nativo `use_lockfile`; requiere Terraform >= 1.10. La raíz `terraform/lab/` usa el mismo módulo con estado local ignorado por Git para pruebas sin cuenta AWS. No administrar el mismo namespace con ambas raíces.
 5. **HPA por CPU**, objetivo 60%, mínimo 2 y máximo 5 réplicas, requests de 100m y límites de 500m. Metrics Server es requisito. Latencia custom requiere un adaptador de métricas que no se implementa en S07; no afirmamos escalamiento por latencia.
@@ -32,16 +32,16 @@ No se versionan `.tfstate`, planes ni credenciales. S3 requiere un bucket preexi
 
 ## Alternativas y trade-offs
 
-| Alternativa | Ventaja | Decisión para S07 |
-| --- | --- | --- |
-| minikube | Add-ons integrados y experiencia local sencilla | Válido, pero kind facilita usar el mismo flujo en CI |
-| k3d / k3s | Ligero y rápido | Válido; se prefiere Kubernetes upstream de kind para el ejercicio |
-| EKS | Kubernetes administrado en AWS | Posible evolución; costos e IAM innecesarios para el laboratorio |
-| ECS Fargate | Alineado con ADR 0003 y menor operación | Sigue como propuesta cloud vigente hasta revisión explícita |
-| Helm | Charts parametrizables y releases | Reservado para múltiples servicios o empaquetado reutilizable |
-| Pulumi | Lenguajes de programación y pruebas de IaC | Terraform satisface el ejercicio con HCL y un módulo pequeño |
-| CloudFormation | Integración nativa AWS | No es adecuado para administrar este laboratorio Kubernetes local |
-| Node slim como runtime | Depuración directa y npm disponible | Se prefiere distroless para reducir herramientas y superficie de ataque |
+| Alternativa            | Ventaja                                         | Decisión para S07                                                       |
+| ---------------------- | ----------------------------------------------- | ----------------------------------------------------------------------- |
+| minikube               | Add-ons integrados y experiencia local sencilla | Válido, pero kind facilita usar el mismo flujo en CI                    |
+| k3d / k3s              | Ligero y rápido                                 | Válido; se prefiere Kubernetes upstream de kind para el ejercicio       |
+| EKS                    | Kubernetes administrado en AWS                  | Posible evolución; costos e IAM innecesarios para el laboratorio        |
+| ECS Fargate            | Alineado con ADR 0003 y menor operación         | Sigue como propuesta cloud vigente hasta revisión explícita             |
+| Helm                   | Charts parametrizables y releases               | Reservado para múltiples servicios o empaquetado reutilizable           |
+| Pulumi                 | Lenguajes de programación y pruebas de IaC      | Terraform satisface el ejercicio con HCL y un módulo pequeño            |
+| CloudFormation         | Integración nativa AWS                          | No es adecuado para administrar este laboratorio Kubernetes local       |
+| Node slim como runtime | Depuración directa y npm disponible             | Se prefiere distroless para reducir herramientas y superficie de ataque |
 
 ## Consecuencias
 

@@ -10,6 +10,8 @@ concurrency:
   group: s08-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  security:
+    uses: ./.github/workflows/security.yml
   quality:
     name: quality (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
@@ -60,7 +62,7 @@ jobs:
           name: s08-sast
           path: artifacts/
   build-and-push:
-    needs: [quality, sast]
+    needs: [quality, sast, security]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -89,6 +91,7 @@ jobs:
       - name: Smoke HTTP y seguridad del contenedor
         run: |
           mkdir -p artifacts
+          docker run --rm --read-only --cap-drop=ALL --security-opt=no-new-privileges aulaviva-api:${{ github.sha }} -e 'const a=require("node:assert/strict"),z=require("node:zlib"); a.equal(z.gunzipSync(z.gzipSync("AulaViva")).toString(),"AulaViva"); require("node:tls").createSecureContext(); a.equal(require("node:crypto").createHash("sha256").update("AulaViva").digest("hex").length,64); console.log("gzip, TLS y SHA256 OK")'
           docker run -d --name s08-smoke -p 8080:8080 --read-only --cap-drop=ALL --security-opt=no-new-privileges aulaviva-api:${{ github.sha }}
           trap 'docker logs s08-smoke; docker rm -f s08-smoke' EXIT
           curl --retry 20 --retry-all-errors --retry-connrefused --retry-delay 1 --fail http://localhost:8080/readyz | tee artifacts/ready.json

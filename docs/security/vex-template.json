@@ -1,0 +1,15 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://example.invalid/aulaviva/vex/REEMPLAZAR-ID",
+  "author": "REEMPLAZAR responsable",
+  "timestamp": "2026-11-05T00:00:00Z",
+  "version": 1,
+  "statements": [
+    {
+      "vulnerability": { "name": "REEMPLAZAR-CVE" },
+      "products": [{ "@id": "pkg:npm/REEMPLAZAR@VERSION" }],
+      "status": "under_investigation",
+      "action_statement": "Plantilla sin aprobación. Completar evidencia, plan, responsable y vencimiento en el PR. No autoriza una exclusión."
+    }
+  ]
+}

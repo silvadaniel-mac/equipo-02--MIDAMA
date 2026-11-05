@@ -1,0 +1,9 @@
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 1 file with 2 Code rules:
+  Scanning 1 file with 2 js rules.
+2/2: ✓ All tests passed
+No tests for fixes found.
