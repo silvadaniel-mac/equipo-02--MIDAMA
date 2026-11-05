@@ -1,0 +1,85 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> aulaviva-contract@1.0.0 ci:quality
+> npm run lint && npm run format:check && npm run test:coverage && npm run api:check
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> aulaviva-contract@1.0.0 lint
+> eslint services/api scripts/*.mjs tests/*.mjs eslint.config.mjs
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> aulaviva-contract@1.0.0 format:check
+> prettier --check services/api/*.mjs eslint.config.mjs .github/workflows/ci.yml gitops/**/*.yaml
+
+Checking formatting...
+All matched files use Prettier code style!
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> aulaviva-contract@1.0.0 test:coverage
+> node --test --experimental-test-coverage --test-coverage-include=services/api/server.mjs --test-coverage-lines=70 services/api/server.test.mjs
+
+✔ probes separan proceso vivo de disponibilidad durante cierre (37.540012ms)
+✔ la base de despliegue no simula casos de negocio implementados (14.759354ms)
+✔ la carga sintética está deshabilitada por defecto (5.383269ms)
+✔ la carga sintética se puede activar expresamente para el laboratorio (44.130672ms)
+✔ la raíz identifica servicio, etapa y release sin implementar negocio (4.198215ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 226.652907
+ℹ start of coverage report
+ℹ -------------------------------------------------------------
+ℹ file         | line % | branch % | funcs % | uncovered lines
+ℹ -------------------------------------------------------------
+ℹ services     |        |          |         | 
+ℹ  api         |        |          |         | 
+ℹ   server.mjs |  75.76 |    95.83 |   66.67 | 51-66
+ℹ -------------------------------------------------------------
+ℹ all files    |  75.76 |    95.83 |   66.67 | 
+ℹ -------------------------------------------------------------
+ℹ end of coverage report
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> aulaviva-contract@1.0.0 api:check
+> npm run api:lint && npm run api:generate && npm run api:typecheck && npm run api:test
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> aulaviva-contract@1.0.0 api:lint
+> spectral lint api/openapi.yaml --fail-severity warn
+
+No results with a severity of 'warn' or higher found!
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> aulaviva-contract@1.0.0 api:generate
+> openapi-typescript api/openapi.yaml -o packages/api-client/src/schema.d.ts
+
+✨ openapi-typescript 7.13.0
+🚀 api/openapi.yaml → packages/api-client/src/schema.d.ts [65.3ms]
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> aulaviva-contract@1.0.0 api:typecheck
+> tsc -p packages/api-client/tsconfig.json --noEmit
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> aulaviva-contract@1.0.0 api:test
+> node --test tests/contract.test.mjs
+
+✔ S05 y garantías transversales del contrato (0.955731ms)
+✔ Spectral detecta summary ausente dentro de una operación (1200.651447ms)
+✔ Spectral rechaza rutas con verbos camelCase (1094.91731ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2497.825589

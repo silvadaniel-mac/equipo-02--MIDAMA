@@ -1,0 +1,4 @@
+2026-11-05T20:33:27Z	INFO	"--format cyclonedx" disables security scanning. Specify "--scanners vuln" explicitly if you want to include vulnerabilities in the "cyclonedx" report.
+2026-11-05T20:33:27Z	INFO	[npm] Run "npm install" to collect the license information of packages	dir="node_modules"
+2026-11-05T20:33:27Z	INFO	Number of language-specific files	num=1
+SBOM CycloneDX 1.7: 476 componentes

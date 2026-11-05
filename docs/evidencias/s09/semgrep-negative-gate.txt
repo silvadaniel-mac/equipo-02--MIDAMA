@@ -1,0 +1,42 @@
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 1 file with 2 Code rules:
+  Scanning 1 file with 2 js rules.
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 4 (4 blocking)
+ • Rules run: 2
+ • Targets scanned: 1
+ • Parsed lines: ~100.0%
+ • No ignore information available
+Ran 2 rules on 1 file: 4 findings.
+                   
+                   
+┌─────────────────┐
+│ 4 Code Findings │
+└─────────────────┘
+                              
+    tests/security/aulaviva.js
+   ❯❯❱ semgrep.aulaviva-no-dynamic-code
+          ❰❰ Blocking ❱❱
+          No ejecutar entrada como código. Usar funciones explícitas y validar los datos.
+                                                                                         
+            3┆ eval(userInput);
+            ⋮┆----------------------------------------
+            5┆ const dynamic = new Function('input', userInput);
+   
+   ❯❯❱ semgrep.aulaviva-no-disabled-tls
+          ❰❰ Blocking ❱❱
+          Mantener la validación TLS para proteger datos académicos y credenciales.
+                                                                                   
+            9┆ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+            ⋮┆----------------------------------------
+           11┆ const insecure = { rejectUnauthorized: false, timeout: 5000 };
+
