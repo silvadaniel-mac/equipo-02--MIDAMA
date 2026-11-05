@@ -15,3 +15,15 @@ No se añadieron ignores, VEX de exclusión, continue-on-error ni filtros para o
 ## Cierre
 
 Validar en GitHub Actions los tres controles sobre el nuevo SHA y descargar su SBOM. Las evidencias del primer run fallido permanecen como historial del hallazgo. La protección de main requiere al administrador del repositorio.
+
+## Imagen del contenedor: CVE-2026-76844
+
+El commit e53f912 obtuvo SAST, SCA y secretos aprobados en el run 42119854334. El contrato API y calidad Node22/24 también pasaron. El siguiente gate, Trivy de imagen, detectó CVE-2026-76844 HIGH en zlib1g 1:1.3.dfsg+really1.3.1-1+b1, sin FixedVersion para Debian13. El artefacto remoto trivy.json confirma el hallazgo; gitops-lab se omitió por dependencia.
+
+El runtime se compone ahora sobre Distroless base-nossl Debian13 nonroot. Del runtime oficial Node24 se copian Node, su licencia, libstdc++ y libgcc con sus archivos originales de inventario dpkg y las licencias GCC. La base mínima conserva glibc, certificados y zonas horarias. No se incluyen OpenSSL, zlib1g ni libzstd del sistema: el binario Node oficial enlaza sus propias implementaciones de TLS y compresión. No se elimina inventario de paquetes instalados ni se cambia la política del escáner.
+
+La composición local ejecutó correctamente Node24.22.2, un ciclo gzip/gunzip, creación de contexto TLS y SHA256. Trivy rootfs 0.76.2 no encontró HIGH/CRITICAL, incluyendo vulnerabilidades sin corrección. El smoke del workflow repite estas comprobaciones dentro del contenedor antes del escaneo completo de imagen. El resultado local no sustituye la evidencia de construcción y escaneo en GitHub.
+
+Se mantiene UID/GID65532, el healthcheck, filesystem de solo lectura y el gate de imagen HIGH/CRITICAL con exit-code1, incluso sin parche. No se usan ignore-unfixed, ignores ni excepciones VEX. La integración depende del nuevo run, el laboratorio GitOps, protección de main y revisión del equipo.
+
+Referencia de la base mínima: https://github.com/GoogleContainerTools/distroless/blob/main/base/README.md
