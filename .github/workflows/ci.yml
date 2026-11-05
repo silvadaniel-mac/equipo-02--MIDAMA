@@ -10,6 +10,8 @@ concurrency:
   group: s08-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  security:
+    uses: ./.github/workflows/security.yml
   quality:
     name: quality (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
@@ -60,7 +62,7 @@ jobs:
           name: s08-sast
           path: artifacts/
   build-and-push:
-    needs: [quality, sast]
+    needs: [quality, sast, security]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:

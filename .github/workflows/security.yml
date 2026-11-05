@@ -1,0 +1,76 @@
+name: AulaViva S09 Security
+on:
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sast:
+    name: sast
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install semgrep==1.183.0
+      - name: Probar reglas propias con casos positivos y negativos
+        run: semgrep --test --config .semgrep/aulaviva.yml tests/security/aulaviva.js
+      - name: OWASP Top 10 y reglas propias bloqueantes
+        run: |
+          mkdir -p artifacts
+          semgrep scan --config p/owasp-top-ten --config .semgrep/ --config .semgrep.yml --error --strict --metrics=off --exclude tests/security/ --json-output artifacts/semgrep.json services packages scripts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s09-sast-${{ github.sha }}
+          path: artifacts/semgrep.json
+          if-no-files-found: error
+          retention-days: 30
+  sca:
+    name: sca
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567
+        with:
+          version: v0.76.2
+          cache: true
+      - name: Generar inventario CycloneDX de dependencias incluidas las de desarrollo
+        run: |
+          mkdir -p artifacts
+          trivy fs --format cyclonedx --include-dev-deps --output artifacts/sbom.json --skip-dirs .git .
+          python3 scripts/validate-sbom.py artifacts/sbom.json
+      - name: Trivy filesystem bloqueante HIGH y CRITICAL con parche
+        run: |
+          trivy fs --scanners vuln --include-dev-deps --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --format json --output artifacts/trivy.json --skip-dirs .git .
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s09-sca-sbom-${{ github.sha }}
+          path: |
+            artifacts/sbom.json
+            artifacts/trivy.json
+          if-no-files-found: error
+          retention-days: 90
+  secrets:
+    name: secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks en todo el historial alcanzable
+        run: |
+          mkdir -p artifacts
+          docker run --rm -v "$PWD:/repo" -w /repo zricethezav/gitleaks:v8.30.0 git --log-opts="--all" --redact --report-format json --report-path artifacts/gitleaks.json .
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s09-secrets-${{ github.sha }}
+          path: artifacts/gitleaks.json
+          if-no-files-found: error
+          retention-days: 30
