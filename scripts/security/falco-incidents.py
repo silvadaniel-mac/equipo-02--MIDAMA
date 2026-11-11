@@ -16,13 +16,15 @@ for line in source.read_text().splitlines():
     except json.JSONDecodeError:
         continue
     rule = event.get("rule")
-    if rule not in expected:
+    fields = event.get("output_fields", {})
+    if event.get("priority", "").lower() not in ("error", "critical", "alert", "emergency"):
         continue
-    assert event.get("priority", "").lower() in ("error", "critical", "alert", "emergency")
-    seen.add(rule)
+    if fields.get("k8s.ns.name") not in ("equipo-02", "equipo-02-falco-test"):
+        continue
+    if rule in expected:
+        seen.add(rule)
     events.append(event)
     identifier = hashlib.sha256(line.encode()).hexdigest()[:12]
-    fields = event.get("output_fields", {})
     drill = fields.get("k8s.ns.name") == "equipo-02-falco-test"
     incident = {
         "id": f"S10-{identifier}", "severity": "High", "rule": rule,
