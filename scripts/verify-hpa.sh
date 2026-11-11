@@ -5,8 +5,10 @@ cd "$(dirname "$0")/.."
 [[ "$(kubectl config current-context)" == "kind-aulaviva" ]] || { echo 'Contexto requerido: kind-aulaviva'; exit 1; }
 mkdir -p artifacts
 cleanup() {
-  kubectl logs job/aulaviva-load -n equipo-02 > artifacts/load-final.txt 2>&1 || true
-  kubectl get job aulaviva-load -n equipo-02 -o yaml > artifacts/load-job-final.yaml 2>&1 || true
+  if kubectl get job aulaviva-load -n equipo-02 > /dev/null 2>&1; then
+    kubectl logs job/aulaviva-load -n equipo-02 > artifacts/load-final.txt 2>&1 || true
+    kubectl get job aulaviva-load -n equipo-02 -o yaml > artifacts/load-job-final.yaml 2>&1 || true
+  fi
   kubectl delete job aulaviva-load -n equipo-02 --ignore-not-found || true
   kubectl patch configmap aulaviva-config -n equipo-02 --type merge -p '{"data":{"ENABLE_LAB_LOAD":"false"}}' || true
   kubectl rollout restart deployment/aulaviva-api -n equipo-02 || true
@@ -20,7 +22,13 @@ metrics_ready=false
 for attempt in $(seq 1 36); do
   if kubectl top pods -n equipo-02 > artifacts/top-before.txt; then
     metrics_ready=true
-    break
+    # No aceptar una muestra residual de un Pod del rollout anterior.
+    pods=$(kubectl get pods -n equipo-02 -l app=aulaviva-api --no-headers | awk '$2 == "1/1" && $3 == "Running" {print $1}')
+    [[ $(wc -w <<< "$pods") -ge 2 ]] || metrics_ready=false
+    for pod in $pods; do
+      awk -v name="$pod" '$1 == name {found=1} END {exit !found}' artifacts/top-before.txt || metrics_ready=false
+    done
+    if [[ "$metrics_ready" == true ]]; then break; fi
   fi
   sleep 5
 done
