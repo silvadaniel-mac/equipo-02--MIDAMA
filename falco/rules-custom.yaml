@@ -1,0 +1,32 @@
+# Tres reglas propias de AulaViva. ERROR equivale a High en la ruta de incidentes.
+# El segundo namespace solo existe para generar syscalls de prueba en CI.
+- list: aulaviva_namespaces
+  items: [equipo-02, equipo-02-falco-test]
+
+- macro: aulaviva_container
+  condition: container.id != host and k8s.ns.name in (aulaviva_namespaces)
+
+- rule: AulaViva Unexpected Shell
+  desc: El backend distroless no requiere shells. Una shell dentro de sus contenedores requiere investigación inmediata.
+  condition: spawned_process and aulaviva_container and proc.name in (sh, bash, dash, ash, zsh, ksh)
+  output: 'AulaViva shell inesperada (ns=%k8s.ns.name pod=%k8s.pod.name user=%user.uid command=%proc.cmdline container=%container.id)'
+  priority: ERROR
+  tags: [aulaviva, incident, execution, T1059]
+
+- rule: AulaViva Write Below Etc
+  desc: La configuración del backend debe permanecer inmutable. Detectar intentos de escritura debajo de /etc.
+  condition: open_write and aulaviva_container and fd.name startswith /etc/
+  output: 'AulaViva escritura de configuracion (ns=%k8s.ns.name pod=%k8s.pod.name file=%fd.name user=%user.uid command=%proc.cmdline container=%container.id)'
+  priority: ERROR
+  tags: [aulaviva, incident, persistence, T1574]
+
+- rule: AulaViva Unexpected Outbound
+  desc: Esta base de despliegue no consume servicios externos. Cualquier conexión externa distinta de DNS requiere revisión.
+  condition: >
+    aulaviva_container and evt.type = connect and evt.dir = <
+    and fd.type in (ipv4, ipv6)
+    and not fd.sport = 53
+    and not fd.sip in (127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, ::1)
+  output: 'AulaViva conexion externa inesperada (ns=%k8s.ns.name pod=%k8s.pod.name remote=%fd.sip port=%fd.sport command=%proc.cmdline container=%container.id)'
+  priority: ERROR
+  tags: [aulaviva, incident, exfiltration, T1041]

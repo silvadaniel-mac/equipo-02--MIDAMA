@@ -1,0 +1,29 @@
+driver:
+  kind: modern_ebpf
+falco:
+  json_output: true
+  json_include_output_property: true
+  stdout_output:
+    enabled: true
+  priority: debug
+collectors:
+  containerEngine:
+    engines:
+      docker:
+        enabled: false
+      podman:
+        enabled: false
+      containerd:
+        enabled: false
+      cri:
+        enabled: true
+        sockets: [/run/containerd/containerd.sock]
+  kubernetes:
+    enabled: false
+falcoctl:
+  artifact:
+    follow:
+      enabled: false
+resources:
+  requests: { cpu: 100m, memory: 256Mi }
+  limits: { cpu: '2', memory: 768Mi }
