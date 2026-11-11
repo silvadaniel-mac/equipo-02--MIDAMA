@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 mkdir -p artifacts/incidents
+diagnose_falco() {
+  kubectl get pods -n falco -o wide > artifacts/falco-pods.txt 2>&1 || true
+  kubectl logs -n falco -l app.kubernetes.io/name=falco --all-containers=true --tail=150 > artifacts/falco-startup.txt 2>&1 || true
+  kubectl describe pods -n falco > artifacts/falco-describe.txt 2>&1 || true
+  cat artifacts/falco-startup.txt
+}
+trap diagnose_falco ERR
 helm repo add falcosecurity https://falcosecurity.github.io/charts
 helm repo update falcosecurity
 helm upgrade --install falco falcosecurity/falco --version 9.2.2 --namespace falco --create-namespace -f falco/values.yaml --set-file 'customRules.rules-custom\.yaml=falco/rules-custom.yaml' --wait --timeout 6m
-kubectl rollout status daemonset/falco -n falco --timeout=180s
+kubectl rollout status daemonset/falco -n falco --timeout=90s
 kubectl exec -n falco daemonset/falco -c falco -- falco --validate /etc/falco/falco_rules.yaml --validate /etc/falco/rules.d/rules-custom.yaml | tee artifacts/falco-rules-validation.txt
 kubectl create namespace equipo-02-falco-test
 kubectl label namespace equipo-02-falco-test pod-security.kubernetes.io/enforce=restricted
