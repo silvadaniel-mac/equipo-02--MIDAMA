@@ -41,7 +41,28 @@ test('la raíz identifica servicio, etapa y release sin implementar negocio', as
   const res = await fetch(url);
   assert.equal(res.status, 200);
   const body = await res.json();
-  assert.equal(body.stage, 'S08');
+  assert.equal(body.stage, 'S10');
   assert.equal(body.release, process.env.RELEASE_SHA || 'local');
   assert.equal(res.headers.get('x-content-type-options'), 'nosniff');
+});
+
+test('todos los estados HTTP conservan las cabeceras de seguridad del staging', async (t) => {
+  const { url } = await fixture(t);
+  for (const path of ['/', '/readyz', '/missing', '/api/v1/contents']) {
+    const res = await fetch(`${url}${path}`);
+    assert.equal(res.headers.get('x-frame-options'), 'DENY');
+    assert.equal(res.headers.get('referrer-policy'), 'no-referrer');
+    assert.equal(
+      res.headers.get('cross-origin-resource-policy'),
+      'same-origin',
+    );
+    assert.match(
+      res.headers.get('content-security-policy'),
+      /default-src 'none'/,
+    );
+    assert.match(
+      res.headers.get('content-security-policy'),
+      /frame-ancestors 'none'/,
+    );
+  }
 });

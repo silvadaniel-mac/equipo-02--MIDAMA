@@ -9,6 +9,17 @@ export function createServer({ labLoad = false } = {}) {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+    );
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+    res.setHeader(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=()',
+    );
     const send = (code, body) => {
       res.writeHead(code);
       res.end(JSON.stringify(body));
@@ -20,7 +31,7 @@ export function createServer({ labLoad = false } = {}) {
     if (path === '/')
       return send(200, {
         service: 'aulaviva-api',
-        stage: 'S08',
+        stage: 'S10',
         release: process.env.RELEASE_SHA || 'local',
         businessApi: 'not_implemented',
       });
