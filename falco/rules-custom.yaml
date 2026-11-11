@@ -23,10 +23,10 @@
 - rule: AulaViva Unexpected Outbound
   desc: Esta base de despliegue no consume servicios externos. Cualquier conexión externa distinta de DNS requiere revisión.
   condition: >
-    aulaviva_container and evt.type = connect and evt.dir = <
+    aulaviva_container and evt.type = connect
     and fd.type in (ipv4, ipv6)
     and not fd.sport = 53
-    and not fd.sip in (127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, ::1)
+    and not fd.snet in (127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, ::1/128)
   output: 'AulaViva conexion externa inesperada (ns=%k8s.ns.name pod=%k8s.pod.name remote=%fd.sip port=%fd.sport command=%proc.cmdline container=%container.id)'
   priority: ERROR
   tags: [aulaviva, incident, exfiltration, T1041]
