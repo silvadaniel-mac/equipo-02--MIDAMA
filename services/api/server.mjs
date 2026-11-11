@@ -1,10 +1,11 @@
 import http from 'node:http';
+import { setImmediate as yieldEventLoop } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
 // Base de despliegue S07. Los casos de negocio de OpenAPI aún no están implementados.
 export function createServer({ labLoad = false } = {}) {
   let ready = true;
-  const server = http.createServer((req, res) => {
+  const server = http.createServer(async (req, res) => {
     const path = new URL(req.url, 'http://localhost').pathname;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
@@ -37,8 +38,12 @@ export function createServer({ labLoad = false } = {}) {
       });
     if (path === '/lab/work' && labLoad) {
       // Carga acotada, solo para laboratorio. No habilitar en producción.
-      const end = performance.now() + 40;
-      while (performance.now() < end) Math.sqrt(Math.random());
+      // Conservar el trabajo CPU sin impedir que las probes sean atendidas.
+      for (let slice = 0; slice < 20; slice++) {
+        const end = performance.now() + 2;
+        while (performance.now() < end) Math.sqrt(Math.random());
+        await yieldEventLoop();
+      }
       return send(200, { status: 'lab_work_completed' });
     }
     if (path.startsWith('/api/'))

@@ -36,6 +36,23 @@ test('la carga sintética se puede activar expresamente para el laboratorio', as
   assert.equal((await res.json()).status, 'lab_work_completed');
 });
 
+test('las probes responden mientras la carga CPU sigue en curso', async (t) => {
+  const { server, url } = await fixture(t, { labLoad: true });
+  const started = once(server, 'request');
+  let workFinished = false;
+  const work = fetch(`${url}/lab/work`).then(async (response) => {
+    await response.arrayBuffer();
+    workFinished = true;
+    return response.status;
+  });
+  await started;
+  const probe = await fetch(`${url}/healthz`);
+  await probe.arrayBuffer();
+  assert.equal(probe.status, 200);
+  assert.equal(workFinished, false, 'La carga no debe bloquear las probes');
+  assert.equal(await work, 200);
+});
+
 test('la raíz identifica servicio, etapa y release sin implementar negocio', async (t) => {
   const { url } = await fixture(t);
   const res = await fetch(url);
