@@ -23,3 +23,8 @@ AulaViva es una plataforma educativa SaaS multi-tenant del equipo MIDAMA. Este �
 - [Terraform y estado remoto](../terraform/README.md)
 
 El contrato de negocio, la implementación del laboratorio y la arquitectura futura tienen alcances distintos. La base ejecutable S07 expone salud y disponibilidad; los endpoints académicos del contrato S05 siguen pendientes.
+
+
+## Sesión 10
+
+[Supply chain y rúbrica](sesiones/s10-supply-chain.md) · [ADR 0006](adr/0006-supply-chain.md) · [Evidencias](evidencias/s10/README.md) · [Runbook SRE inicial](runbooks/aulaviva-availability.md).
