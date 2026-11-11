@@ -5,6 +5,10 @@ cd "$(dirname "$0")/.."
 [[ "$(kubectl config current-context)" == "kind-aulaviva" ]] || { echo 'Contexto requerido: kind-aulaviva'; exit 1; }
 mkdir -p artifacts
 cleanup() {
+  if kubectl get job aulaviva-load -n equipo-02 > /dev/null 2>&1; then
+    kubectl logs job/aulaviva-load -n equipo-02 > artifacts/load-final.txt 2>&1 || true
+    kubectl get job aulaviva-load -n equipo-02 -o yaml > artifacts/load-job-final.yaml 2>&1 || true
+  fi
   kubectl delete job aulaviva-load -n equipo-02 --ignore-not-found || true
   kubectl patch configmap aulaviva-config -n equipo-02 --type merge -p '{"data":{"ENABLE_LAB_LOAD":"false"}}' || true
   kubectl rollout restart deployment/aulaviva-api -n equipo-02 || true
@@ -18,7 +22,13 @@ metrics_ready=false
 for attempt in $(seq 1 36); do
   if kubectl top pods -n equipo-02 > artifacts/top-before.txt; then
     metrics_ready=true
-    break
+    # No aceptar una muestra residual de un Pod del rollout anterior.
+    pods=$(kubectl get pods -n equipo-02 -l app=aulaviva-api --no-headers | awk '$2 == "1/1" && $3 == "Running" {print $1}')
+    [[ $(wc -w <<< "$pods") -ge 2 ]] || metrics_ready=false
+    for pod in $pods; do
+      awk -v name="$pod" '$1 == name {found=1} END {exit !found}' artifacts/top-before.txt || metrics_ready=false
+    done
+    if [[ "$metrics_ready" == true ]]; then break; fi
   fi
   sleep 5
 done
@@ -39,8 +49,20 @@ kubectl rollout status deployment/aulaviva-api -n equipo-02 --timeout=180s
 kubectl top pods -n equipo-02 | tee artifacts/top-during.txt
 kubectl get all -n equipo-02 -o wide | tee artifacts/kubectl-get-all.txt
 kubectl get deployment aulaviva-api -n equipo-02 -o yaml > artifacts/deployment.yaml
-# El Job debe completar y reportar cero errores HTTP.
-kubectl wait --for=condition=complete job/aulaviva-load -n equipo-02 --timeout=240s
+# Distinguir Complete de Failed y conservar la causa antes del cleanup.
+completed=false
+for attempt in $(seq 1 48); do
+  succeeded=$(kubectl get job aulaviva-load -n equipo-02 -o jsonpath='{.status.succeeded}')
+  failed=$(kubectl get job aulaviva-load -n equipo-02 -o jsonpath='{.status.failed}')
+  if [[ "${succeeded:-0}" -gt 0 ]]; then completed=true; break; fi
+  if [[ "${failed:-0}" -gt 0 ]]; then
+    kubectl logs job/aulaviva-load -n equipo-02 | tee artifacts/load.txt
+    echo 'El generador de carga falló; se conserva el diagnóstico.' >&2
+    exit 1
+  fi
+  sleep 5
+done
+[[ "$completed" == true ]] || { echo 'El Job no completó dentro del plazo.' >&2; exit 1; }
 kubectl logs job/aulaviva-load -n equipo-02 | tee artifacts/load.txt
 kubectl delete job aulaviva-load -n equipo-02
 # Acreditar reducción tras finalizar la carga y la ventana de estabilización.

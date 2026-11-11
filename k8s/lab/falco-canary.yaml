@@ -1,0 +1,36 @@
+# Sonda de detección. Solo se crea en el namespace efímero de pruebas de Falco.
+# No obtiene excepción de firma ni acceso al namespace de staging equipo-02.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: aulaviva-falco-canary
+  namespace: equipo-02-falco-test
+  labels:
+    app: aulaviva-falco-canary
+    aulaviva.security/drill: 'true'
+spec:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: canary
+      image: busybox:1.37.0
+      command: [sleep, '600']
+      resources:
+        requests: { cpu: 10m, memory: 8Mi }
+        limits: { cpu: 100m, memory: 32Mi }
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ALL]
+      volumeMounts:
+        - name: synthetic-etc
+          mountPath: /etc
+  volumes:
+    - name: synthetic-etc
+      emptyDir: {}

@@ -36,12 +36,50 @@ test('la carga sintética se puede activar expresamente para el laboratorio', as
   assert.equal((await res.json()).status, 'lab_work_completed');
 });
 
+test('las probes responden mientras la carga CPU sigue en curso', async (t) => {
+  const { server, url } = await fixture(t, { labLoad: true });
+  const started = once(server, 'request');
+  let workFinished = false;
+  const work = fetch(`${url}/lab/work`).then(async (response) => {
+    await response.arrayBuffer();
+    workFinished = true;
+    return response.status;
+  });
+  await started;
+  const probe = await fetch(`${url}/healthz`);
+  await probe.arrayBuffer();
+  assert.equal(probe.status, 200);
+  assert.equal(workFinished, false, 'La carga no debe bloquear las probes');
+  assert.equal(await work, 200);
+});
+
 test('la raíz identifica servicio, etapa y release sin implementar negocio', async (t) => {
   const { url } = await fixture(t);
   const res = await fetch(url);
   assert.equal(res.status, 200);
   const body = await res.json();
-  assert.equal(body.stage, 'S08');
+  assert.equal(body.stage, 'S10');
   assert.equal(body.release, process.env.RELEASE_SHA || 'local');
   assert.equal(res.headers.get('x-content-type-options'), 'nosniff');
+});
+
+test('todos los estados HTTP conservan las cabeceras de seguridad del staging', async (t) => {
+  const { url } = await fixture(t);
+  for (const path of ['/', '/readyz', '/missing', '/api/v1/contents']) {
+    const res = await fetch(`${url}${path}`);
+    assert.equal(res.headers.get('x-frame-options'), 'DENY');
+    assert.equal(res.headers.get('referrer-policy'), 'no-referrer');
+    assert.equal(
+      res.headers.get('cross-origin-resource-policy'),
+      'same-origin',
+    );
+    assert.match(
+      res.headers.get('content-security-policy'),
+      /default-src 'none'/,
+    );
+    assert.match(
+      res.headers.get('content-security-policy'),
+      /frame-ancestors 'none'/,
+    );
+  }
 });

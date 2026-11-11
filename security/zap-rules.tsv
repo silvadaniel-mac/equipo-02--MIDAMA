@@ -1,0 +1,4 @@
+# Reglas pasivas Medium conocidas: FAIL. El gate JSON también bloquea cualquier Medium nuevo.
+10020	FAIL	X-Frame-Options
+10038	FAIL	Content Security Policy
+10055	FAIL	CSP

@@ -1,0 +1,1 @@
+SLSA VERIFY OK: firma OIDC, digest sha256:d27225b2897a0e09cfa0286d3cf4c0f6653e33fd459f945c2d7ae1c456babd3a, commit 119ab658d8c434cc8b06e73306e9a71684bed7fe, builder https://github.com/actions/runner

@@ -1,0 +1,50 @@
+{
+  "run": "https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/43115051073",
+  "commit": "119ab658d8c434cc8b06e73306e9a71684bed7fe",
+  "image": "ghcr.io/silvadaniel-mac/aulaviva-api-s10@sha256:d27225b2897a0e09cfa0286d3cf4c0f6653e33fd459f945c2d7ae1c456babd3a",
+  "checkov": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "parsing_errors": 0,
+    "negative_ssh": "rejected CKV_AWS_24"
+  },
+  "trivy": {
+    "HIGH": 0,
+    "CRITICAL": 0
+  },
+  "cosign": {
+    "verified": true,
+    "unsigned_exit": 10,
+    "wrong_identity_exit": 12
+  },
+  "slsa": {
+    "signed_and_verified": true,
+    "predicateType": "https://slsa.dev/provenance/v0.2",
+    "builder": "https://github.com/actions/runner"
+  },
+  "admission": {
+    "signed": "allowed",
+    "unsigned": "rejected: no signatures found"
+  },
+  "falco": {
+    "rules_observed": [
+      "AulaViva Unexpected Outbound",
+      "AulaViva Unexpected Shell",
+      "AulaViva Write Below Etc"
+    ],
+    "incidents_created": 6,
+    "missing": []
+  },
+  "zap": {
+    "urls": 10,
+    "baseline_pass": 67,
+    "High": 0,
+    "Medium": 0,
+    "Low": 0,
+    "Informational_alert_types": 1,
+    "info_instances": 2,
+    "info": "Non-Storable Content: Cache-Control no-store en readyz y API 501"
+  },
+  "scope": "staging efímero; API de negocio no implementada (501); no certificación externa SLSA"
+}

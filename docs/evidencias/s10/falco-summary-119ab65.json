@@ -1,0 +1,9 @@
+{
+  "rules_observed": [
+    "AulaViva Unexpected Outbound",
+    "AulaViva Unexpected Shell",
+    "AulaViva Write Below Etc"
+  ],
+  "incidents_created": 6,
+  "missing": []
+}

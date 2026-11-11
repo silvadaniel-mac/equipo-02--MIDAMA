@@ -98,3 +98,12 @@ El workflow S08 llama a `.github/workflows/security.yml`. Sus jobs `sast`, `sca`
 5. **El VEX documentado no desactiva automáticamente el gate.** Cualquier excepción al escáner debe ser limitada al CVE y componente exactos, revisada en ese mismo PR y con control de expiración automatizado antes de activarse. No se incorporan exclusiones globales ni una baseline para esconder hallazgos. Para falsos positivos de SAST, corregir la regla mediante PR con un test de regresión, sin `nosec` silencioso.
 
 El administrador debe activar protección de `main`, revisión de PR y checks obligatorios `security / sast`, `security / sca`, `security / secrets`, además de los existentes. Confirmar los nombres exactos después del primer run. Crear una cuenta Semgrep gratuita permite gestionar reglas en su plataforma, pero este escaneo usa reglas públicas sin token: no se afirma haber creado o vinculado una cuenta.
+
+
+## Sesión 10: DevSecOps II y supply chain
+
+[Guía S10](docs/sesiones/s10-supply-chain.md) · [ADR 0006](docs/adr/0006-supply-chain.md) · [Evidencias](docs/evidencias/s10/README.md) · [Workflow S10](.github/workflows/supply-chain-s10.yml).
+
+El pipeline conserva los controles S09 y agrega Checkov sobre Terraform, Trivy sobre la imagen final, firma Cosign keyless, attestation SLSA y verificación por identidad exacta. Despliega esa imagen por digest en kind, exige firma/provenance con Kyverno y comprueba tres reglas Falco con syscalls reales. ZAP baseline analiza el staging y bloquea Medium/High. Los controles negativos prueban el rechazo de IaC insegura, una imagen sin firma y una identidad ajena. Cada alerta Falco High genera un registro de incidente.
+
+El staging es temporal y desaparece con el runner. Los endpoints académicos aún no implementados responden 501. El análisis no acredita seguridad de flujos que todavía no existen. La matriz de la consigna y los resultados del run se mantienen en los enlaces anteriores.

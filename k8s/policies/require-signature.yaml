@@ -1,0 +1,70 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-image-signature
+  annotations:
+    policies.kyverno.io/title: AulaViva signed supply chain
+    policies.kyverno.io/description: Firma OIDC del workflow oficial y provenance del repositorio antes de admitir imágenes en equipo-02.
+    pod-policies.kyverno.io/autogen-controllers: none
+spec:
+  validationFailureAction: Enforce
+  background: false
+  failurePolicy: Fail
+  webhookTimeoutSeconds: 30
+  rules:
+    - name: only-aulaviva-registry
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaces: [equipo-02]
+      validate:
+        message: Todas las imágenes de equipo-02 deben pertenecer al paquete firmado de AulaViva S10.
+        foreach:
+          - list: request.object.spec.[ephemeralContainers, initContainers, containers][]
+            deny:
+              conditions:
+                all:
+                  - key: "{{ starts_with(element.image, 'ghcr.io/silvadaniel-mac/aulaviva-api-s10@sha256:') }}"
+                    operator: Equals
+                    value: false
+    - name: verify-signature-and-slsa
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaces: [equipo-02]
+      verifyImages:
+        - imageReferences:
+            - ghcr.io/silvadaniel-mac/aulaviva-api-s10*
+          mutateDigest: false
+          verifyDigest: true
+          required: true
+          imageRegistryCredentials:
+            secrets: [ghcr-pull]
+          attestors:
+            - count: 1
+              entries:
+                - keyless:
+                    subject: https://github.com/silvadaniel-mac/equipo-02--MIDAMA/.github/workflows/supply-chain-s10.yml@refs/heads/main
+                    issuer: https://token.actions.githubusercontent.com
+                    rekor:
+                      url: https://rekor.sigstore.dev
+          attestations:
+            - predicateType: https://slsa.dev/provenance/v0.2
+              attestors:
+                - count: 1
+                  entries:
+                    - keyless:
+                        subject: https://github.com/silvadaniel-mac/equipo-02--MIDAMA/.github/workflows/supply-chain-s10.yml@refs/heads/main
+                        issuer: https://token.actions.githubusercontent.com
+                        rekor:
+                          url: https://rekor.sigstore.dev
+              conditions:
+                - all:
+                    - key: '{{ builder.id }}'
+                      operator: Equals
+                      value: https://github.com/actions/runner
+                    - key: '{{ invocation.configSource.uri }}'
+                      operator: Equals
+                      value: git+https://github.com/silvadaniel-mac/equipo-02--MIDAMA
