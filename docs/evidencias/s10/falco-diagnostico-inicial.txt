@@ -1,0 +1,24 @@
+Error: /etc/falco/rules.d/rules-custom.yaml: Invalid
+2026-11-11T22:47:40.1950730Z 1 Errors:
+2026-11-11T22:47:40.1951050Z In rules content: (/etc/falco/rules.d/rules-custom.yaml:0:0)
+2026-11-11T22:47:40.1951533Z     rule 'AulaViva Unexpected Outbound': (/etc/falco/rules.d/rules-custom.yaml:22:2)
+2026-11-11T22:47:40.1951796Z     rule condition: (/etc/falco/rules.d/rules-custom.yaml:24:13)
+2026-11-11T22:47:40.1952015Z     condition expression: ("aulaviva_containe...":25:130)
+2026-11-11T22:47:40.1952185Z ------
+2026-11-11T22:47:40.1957292Z ...nd not fd.sip in (127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, ::1)
+2026-11-11T22:47:40.1957609Z                                                                                 ^
+2026-11-11T22:47:40.1957778Z ------
+2026-11-11T22:47:40.1957991Z LOAD_ERR_COMPILE_CONDITION (Error compiling condition): unrecognized IPv4 address 127.0.0.0/8
+2026-11-11T22:47:40.1958188Z 
+2026-11-11T22:47:40.1958240Z 1 Warnings:
+2026-11-11T22:47:40.1958475Z In rules content: (/etc/falco/rules.d/rules-custom.yaml:0:0)
+2026-11-11T22:47:40.1958900Z     rule 'AulaViva Unexpected Outbound': (/etc/falco/rules.d/rules-custom.yaml:22:2)
+2026-11-11T22:47:40.1959276Z     rule condition: (/etc/falco/rules.d/rules-custom.yaml:24:13)
+2026-11-11T22:47:40.1959553Z     condition expression: ("aulaviva_containe...":24:13)
+2026-11-11T22:47:40.1959720Z ------
+2026-11-11T22:47:40.1959941Z ...nd not fd.sip in (127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, ::1)
+2026-11-11T22:47:40.1960203Z                                                                                 ^
+2026-11-11T22:47:40.1960364Z ------
+2026-11-11T22:47:40.1960925Z LOAD_DEPRECATED_ITEM (Used deprecated item: field 'evt.dir'): due to the drop of enter events, 'evt.dir = <' always evaluates to true, and 'evt.dir = >' always evaluates to false. The rule expression can be simplified by removing the condition on 'evt.dir'
+2026-11-11T22:47:40.1961403Z 
+2026-11-11T22:47:40.1970194Z 

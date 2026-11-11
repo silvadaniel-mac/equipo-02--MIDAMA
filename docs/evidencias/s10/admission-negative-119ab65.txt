@@ -1,0 +1,6 @@
+Error from server: error when creating "artifacts/unsigned-pod.json": admission webhook "mutate.kyverno.svc-fail" denied the request: 
+
+resource Pod/equipo-02/unsigned-negative-control was blocked due to the following policies 
+
+require-image-signature:
+  verify-signature-and-slsa: 'failed to verify image ghcr.io/silvadaniel-mac/aulaviva-api-s10@sha256:8a129260a602fae34f1ccecf088d455bad24cea8cd278253a72dabef45f6d376: .attestors[0].entries[0].keyless: no signatures found'

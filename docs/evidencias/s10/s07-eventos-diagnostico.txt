@@ -1,0 +1,69 @@
+LAST SEEN   TYPE      REASON                         OBJECT                                 MESSAGE
+2m36s       Normal    Pulled                         pod/aulaviva-api-56c688bbb-z58hk       Container image "aulaviva-api:local" already present on machine
+2m36s       Normal    Pulled                         pod/aulaviva-api-56c688bbb-5zd8b       Container image "aulaviva-api:local" already present on machine
+2m36s       Normal    Created                        pod/aulaviva-api-56c688bbb-5zd8b       Created container: api
+2m36s       Normal    Started                        pod/aulaviva-api-56c688bbb-5zd8b       Started container api
+2m36s       Normal    Scheduled                      pod/aulaviva-api-56c688bbb-5zd8b       Successfully assigned equipo-02/aulaviva-api-56c688bbb-5zd8b to aulaviva-control-plane
+2m36s       Normal    Scheduled                      pod/aulaviva-api-56c688bbb-z58hk       Successfully assigned equipo-02/aulaviva-api-56c688bbb-z58hk to aulaviva-control-plane
+2m36s       Normal    ScalingReplicaSet              deployment/aulaviva-api                Scaled up replica set aulaviva-api-56c688bbb from 0 to 2
+2m36s       Normal    Created                        pod/aulaviva-api-56c688bbb-z58hk       Created container: api
+2m36s       Normal    Started                        pod/aulaviva-api-56c688bbb-z58hk       Started container api
+2m36s       Normal    SuccessfulCreate               replicaset/aulaviva-api-56c688bbb      Created pod: aulaviva-api-56c688bbb-z58hk
+2m36s       Normal    SuccessfulCreate               replicaset/aulaviva-api-56c688bbb      Created pod: aulaviva-api-56c688bbb-5zd8b
+2m6s        Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/aulaviva-api   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+2m6s        Warning   FailedGetResourceMetric        horizontalpodautoscaler/aulaviva-api   failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+2m12s       Normal    ScalingReplicaSet              deployment/aulaviva-api                Scaled up replica set aulaviva-api-5976fbbc84 from 0 to 1
+2m12s       Normal    Scheduled                      pod/aulaviva-api-5976fbbc84-psg4n      Successfully assigned equipo-02/aulaviva-api-5976fbbc84-psg4n to aulaviva-control-plane
+2m12s       Normal    SuccessfulCreate               replicaset/aulaviva-api-5976fbbc84     Created pod: aulaviva-api-5976fbbc84-psg4n
+2m12s       Normal    Started                        pod/aulaviva-api-5976fbbc84-psg4n      Started container api
+2m12s       Normal    Created                        pod/aulaviva-api-5976fbbc84-psg4n      Created container: api
+2m12s       Normal    Pulled                         pod/aulaviva-api-5976fbbc84-psg4n      Container image "aulaviva-api:local" already present on machine
+2m10s       Normal    ScalingReplicaSet              deployment/aulaviva-api                Scaled up replica set aulaviva-api-5976fbbc84 from 1 to 2
+88s         Normal    Started                        pod/aulaviva-api-5976fbbc84-8jm6l      Started container api
+88s         Normal    Pulled                         pod/aulaviva-api-5976fbbc84-8jm6l      Container image "aulaviva-api:local" already present on machine
+2m10s       Normal    SuccessfulDelete               replicaset/aulaviva-api-56c688bbb      Deleted pod: aulaviva-api-56c688bbb-z58hk
+88s         Normal    Created                        pod/aulaviva-api-5976fbbc84-8jm6l      Created container: api
+2m10s       Normal    SuccessfulCreate               replicaset/aulaviva-api-5976fbbc84     Created pod: aulaviva-api-5976fbbc84-8jm6l
+2m10s       Normal    Killing                        pod/aulaviva-api-56c688bbb-z58hk       Stopping container api
+2m10s       Normal    ScalingReplicaSet              deployment/aulaviva-api                Scaled down replica set aulaviva-api-56c688bbb from 2 to 1
+2m10s       Normal    Scheduled                      pod/aulaviva-api-5976fbbc84-8jm6l      Successfully assigned equipo-02/aulaviva-api-5976fbbc84-8jm6l to aulaviva-control-plane
+2m7s        Normal    ScalingReplicaSet              deployment/aulaviva-api                Scaled down replica set aulaviva-api-56c688bbb from 1 to 0
+2m7s        Normal    Killing                        pod/aulaviva-api-56c688bbb-5zd8b       Stopping container api
+2m7s        Normal    Scheduled                      pod/aulaviva-load-wb592                Successfully assigned equipo-02/aulaviva-load-wb592 to aulaviva-control-plane
+2m7s        Normal    SuccessfulDelete               replicaset/aulaviva-api-56c688bbb      Deleted pod: aulaviva-api-56c688bbb-5zd8b
+2m7s        Normal    SuccessfulCreate               job/aulaviva-load                      Created pod: aulaviva-load-wb592
+2m6s        Normal    Pulled                         pod/aulaviva-load-wb592                Container image "aulaviva-api:local" already present on machine
+2m6s        Normal    Created                        pod/aulaviva-load-wb592                Created container: load
+2m6s        Normal    Started                        pod/aulaviva-load-wb592                Started container load
+91s         Warning   Unhealthy                      pod/aulaviva-api-5976fbbc84-8jm6l      Readiness probe failed: Get "http://10.244.0.10:8080/readyz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+111s        Warning   FailedGetResourceMetric        horizontalpodautoscaler/aulaviva-api   failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+111s        Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/aulaviva-api   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+89s         Warning   Unhealthy                      pod/aulaviva-api-5976fbbc84-8jm6l      Liveness probe failed: Get "http://10.244.0.10:8080/healthz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+96s         Normal    Started                        pod/aulaviva-api-5976fbbc84-dnzq9      Started container api
+96s         Normal    Started                        pod/aulaviva-api-5976fbbc84-c6srg      Started container api
+96s         Normal    SuccessfulCreate               replicaset/aulaviva-api-5976fbbc84     Created pod: aulaviva-api-5976fbbc84-dnzq9
+96s         Normal    Scheduled                      pod/aulaviva-api-5976fbbc84-c6srg      Successfully assigned equipo-02/aulaviva-api-5976fbbc84-c6srg to aulaviva-control-plane
+96s         Normal    Pulled                         pod/aulaviva-api-5976fbbc84-c6srg      Container image "aulaviva-api:local" already present on machine
+96s         Normal    Pulled                         pod/aulaviva-api-5976fbbc84-dnzq9      Container image "aulaviva-api:local" already present on machine
+96s         Normal    Created                        pod/aulaviva-api-5976fbbc84-c6srg      Created container: api
+96s         Normal    SuccessfulRescale              horizontalpodautoscaler/aulaviva-api   New size: 4; reason: cpu resource utilization (percentage of request) above target
+96s         Normal    SuccessfulCreate               replicaset/aulaviva-api-5976fbbc84     Created pod: aulaviva-api-5976fbbc84-c6srg
+96s         Normal    Scheduled                      pod/aulaviva-api-5976fbbc84-dnzq9      Successfully assigned equipo-02/aulaviva-api-5976fbbc84-dnzq9 to aulaviva-control-plane
+96s         Normal    ScalingReplicaSet              deployment/aulaviva-api                Scaled up replica set aulaviva-api-5976fbbc84 from 2 to 4
+96s         Normal    Created                        pod/aulaviva-api-5976fbbc84-dnzq9      Created container: api
+89s         Normal    Killing                        pod/aulaviva-api-5976fbbc84-8jm6l      Container api failed liveness probe, will be restarted
+19s         Warning   Unhealthy                      pod/aulaviva-api-5976fbbc84-psg4n      Readiness probe failed: Get "http://10.244.0.9:8080/readyz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+66s         Normal    SuccessfulRescale              horizontalpodautoscaler/aulaviva-api   New size: 5; reason: cpu resource utilization (percentage of request) above target
+66s         Normal    Scheduled                      pod/aulaviva-api-5976fbbc84-d99w9      Successfully assigned equipo-02/aulaviva-api-5976fbbc84-d99w9 to aulaviva-control-plane
+66s         Normal    Pulled                         pod/aulaviva-api-5976fbbc84-d99w9      Container image "aulaviva-api:local" already present on machine
+66s         Normal    Started                        pod/aulaviva-api-5976fbbc84-d99w9      Started container api
+66s         Normal    ScalingReplicaSet              deployment/aulaviva-api                Scaled up replica set aulaviva-api-5976fbbc84 from 4 to 5
+66s         Normal    Created                        pod/aulaviva-api-5976fbbc84-d99w9      Created container: api
+66s         Normal    SuccessfulCreate               replicaset/aulaviva-api-5976fbbc84     Created pod: aulaviva-api-5976fbbc84-d99w9
+51s         Warning   Unhealthy                      pod/aulaviva-api-5976fbbc84-psg4n      Liveness probe failed: Get "http://10.244.0.9:8080/healthz": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+4s          Warning   BackoffLimitExceeded           job/aulaviva-load                      Job has reached the specified backoff limit
+0s          Normal    ScalingReplicaSet              deployment/aulaviva-api                Scaled up replica set aulaviva-api-7f76689fbc from 0 to 1
+0s          Normal    Created                        pod/aulaviva-api-7f76689fbc-2g4xz      Created container: api
+0s          Normal    SuccessfulCreate               replicaset/aulaviva-api-7f76689fbc     Created pod: aulaviva-api-7f76689fbc-2g4xz
+0s          Normal    Scheduled                      pod/aulaviva-api-7f76689fbc-2g4xz      Successfully assigned equipo-02/aulaviva-api-7f76689fbc-2g4xz to aulaviva-control-plane
+0s          Normal    Pulled                         pod/aulaviva-api-7f76689fbc-2g4xz      Container image "aulaviva-api:local" already present on machine

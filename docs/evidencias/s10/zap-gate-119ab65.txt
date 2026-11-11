@@ -1,0 +1,2 @@
+ZAP PASS: 0 alertas Medium/High. Las Low/Info quedan en el reporte.
+CONTROL NEGATIVO OK: el gate ZAP rechaza Medium aunque baseline use -I para Low/Info.

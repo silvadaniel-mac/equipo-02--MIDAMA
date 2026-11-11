@@ -1,0 +1,6 @@
+
+Verification for ghcr.io/silvadaniel-mac/aulaviva-api-s10@sha256:d27225b2897a0e09cfa0286d3cf4c0f6653e33fd459f945c2d7ae1c456babd3a --
+The following checks were performed on each of these signatures:
+  - The cosign claims were validated
+  - Existence of the claims in the transparency log was verified offline
+  - The code-signing certificate was verified using trusted certificate authority certificates
