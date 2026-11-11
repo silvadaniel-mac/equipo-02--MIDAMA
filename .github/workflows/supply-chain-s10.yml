@@ -1,0 +1,223 @@
+name: AulaViva S10 Supply Chain
+on:
+  push:
+    branches: [main, feature/s10-supply-chain]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s10-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  IMAGE: ghcr.io/silvadaniel-mac/aulaviva-api-s10
+jobs:
+  security:
+    uses: ./.github/workflows/security.yml
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run ci:quality
+      - run: git diff --exit-code -- packages/api-client/src/schema.d.ts
+  iac-scan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - run: pip install checkov==3.4.3
+      - name: Checkov Terraform bloqueante y sin conexión a Prisma Cloud
+        run: |
+          mkdir -p artifacts
+          checkov -d terraform --framework terraform --skip-download --skip-results-upload --download-external-modules false --compact --output json > artifacts/checkov.json
+          python3 scripts/security/check-report.py checkov artifacts/checkov.json
+      - name: Control negativo real del gate IaC
+        run: bash scripts/security/test-iac-gate.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: s10-iac-${{ github.sha }}
+          path: artifacts/
+          retention-days: 90
+  container-scan:
+    needs: [security, quality, iac-scan]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.publish.outputs.digest }}
+      unsigned: ${{ steps.publish.outputs.unsigned }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - name: Construir la imagen final y guardar provenance de BuildKit
+        env:
+          BUILDX_METADATA_PROVENANCE: max
+        run: |
+          mkdir -p artifacts
+          date -u +%Y-%m-%dT%H:%M:%SZ > artifacts/build-start.txt
+          docker buildx build --load --metadata-file artifacts/build-metadata.json --build-arg "RELEASE_SHA=$GITHUB_SHA" -t "$IMAGE:$GITHUB_SHA" .
+          date -u +%Y-%m-%dT%H:%M:%SZ > artifacts/build-finish.txt
+          docker image inspect "$IMAGE:$GITHUB_SHA" --format '{{.Config.User}}' | tee artifacts/image-user.txt
+          test "$(cat artifacts/image-user.txt)" = '65532:65532'
+      - name: Probar salud y aislamiento del contenedor
+        run: |
+          docker run -d --name s10-smoke --read-only --cap-drop=ALL --security-opt=no-new-privileges -p 8080:8080 "$IMAGE:$GITHUB_SHA"
+          trap 'docker logs s10-smoke; docker rm -f s10-smoke' EXIT
+          curl --retry 20 --retry-all-errors --retry-delay 1 --fail http://127.0.0.1:8080/readyz | tee artifacts/smoke-ready.json
+          curl --fail -D artifacts/security-headers.txt http://127.0.0.1:8080/ | tee artifacts/smoke-release.json
+      - uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.2.6
+        with:
+          version: v0.76.2
+          cache: true
+      - name: Trivy de imagen bloqueante HIGH y CRITICAL, incluso sin parche
+        run: |
+          trivy image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --output artifacts/trivy-image.json "$IMAGE:$GITHUB_SHA"
+          python3 scripts/security/check-report.py trivy artifacts/trivy-image.json
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publicar después del gate y preparar imagen sin firma para el control negativo
+        id: publish
+        run: |
+          docker push "$IMAGE:$GITHUB_SHA" | tee artifacts/push.txt
+          digest=$(docker inspect "$IMAGE:$GITHUB_SHA" --format '{{index .RepoDigests 0}}' | cut -d@ -f2)
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          printf '%s@%s\n' "$IMAGE" "$digest" | tee artifacts/image-digest.txt
+          printf 'FROM %s\nLABEL aulaviva.s10.unsigned-control="%s"\n' "$IMAGE:$GITHUB_SHA" "$GITHUB_RUN_ID" | docker build -t "$IMAGE:unsigned-$GITHUB_SHA" -
+          docker push "$IMAGE:unsigned-$GITHUB_SHA" > artifacts/push-unsigned.txt
+          unsigned=$(docker inspect "$IMAGE:unsigned-$GITHUB_SHA" --format '{{index .RepoDigests 0}}' | cut -d@ -f2)
+          [[ "$unsigned" =~ ^sha256:[0-9a-f]{64}$ ]]
+          test "$unsigned" != "$digest"
+          echo "unsigned=$unsigned" >> "$GITHUB_OUTPUT"
+          printf '%s@%s\n' "$IMAGE" "$unsigned" > artifacts/unsigned-digest.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: s10-container-${{ github.sha }}
+          path: artifacts/
+          retention-days: 90
+  sign-and-attest:
+    needs: container-scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: s10-container-${{ github.sha }}
+          path: artifacts/
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # v3.8.2
+        with:
+          cosign-release: v2.6.1
+      - name: Firmar el digest con OIDC keyless y registrar en Rekor
+        env:
+          DIGEST: ${{ needs.container-scan.outputs.digest }}
+        run: |
+          set -o pipefail
+          cosign sign --yes "$IMAGE@$DIGEST" 2>&1 | tee artifacts/cosign-sign.txt
+      - name: Generar y adjuntar provenance SLSA v0.2 firmada
+        env:
+          DIGEST: ${{ needs.container-scan.outputs.digest }}
+        run: |
+          python3 scripts/security/provenance.py generate artifacts
+          set -o pipefail
+          cosign attest --yes --type slsaprovenance --predicate artifacts/provenance.json "$IMAGE@$DIGEST" 2>&1 | tee artifacts/cosign-attest.txt
+      - name: Cosign verify y verify-attestation bloqueantes con identidad exacta
+        env:
+          DIGEST: ${{ needs.container-scan.outputs.digest }}
+        run: |
+          identity="https://github.com/$GITHUB_WORKFLOW_REF"
+          cosign verify --certificate-identity "$identity" --certificate-oidc-issuer https://token.actions.githubusercontent.com "$IMAGE@$DIGEST" > artifacts/cosign-verify.json 2> artifacts/cosign-verify.txt
+          cat artifacts/cosign-verify.txt artifacts/cosign-verify.json
+          cosign verify-attestation --type slsaprovenance --certificate-identity "$identity" --certificate-oidc-issuer https://token.actions.githubusercontent.com "$IMAGE@$DIGEST" > artifacts/verified-attestation.jsonl 2> artifacts/cosign-verify-attestation.txt
+          python3 scripts/security/provenance.py verify artifacts
+          cosign tree "$IMAGE@$DIGEST" > artifacts/cosign-tree.txt
+          echo '## Cosign verify exitoso' >> "$GITHUB_STEP_SUMMARY"
+          printf 'Imagen: `%s@%s`\n\nIdentidad: `%s`\n\nFirma y attestation verificadas.\n' "$IMAGE" "$DIGEST" "$identity" >> "$GITHUB_STEP_SUMMARY"
+      - name: Rechazar imagen sin firma e identidad equivocada
+        env:
+          DIGEST: ${{ needs.container-scan.outputs.digest }}
+          UNSIGNED_DIGEST: ${{ needs.container-scan.outputs.unsigned }}
+        run: bash scripts/security/test-signature-gate.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: s10-signature-slsa-${{ github.sha }}
+          path: artifacts/
+          retention-days: 90
+  dast:
+    needs: [container-scan, sign-and-attest]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: read
+      packages: read
+    env:
+      DIGEST: ${{ needs.container-scan.outputs.digest }}
+      UNSIGNED_DIGEST: ${{ needs.container-scan.outputs.unsigned }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: azure/setup-kubectl@c0c8b32d33a5244f1e5947304550403b63930415 # v4
+        with:
+          version: v1.32.2
+      - uses: azure/setup-helm@bf6a7d304bc2fdb57e0331155b7ebf2c504acf0a # v4
+        with:
+          version: v3.18.6
+      - uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
+        with:
+          version: v0.27.0
+          cluster_name: aulaviva-s10
+          config: k8s/lab/kind-s10.yaml
+      - name: Instalar Kyverno, verificar admisión y desplegar staging por digest
+        env:
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/lab-supply-chain-s10.sh
+      - name: Instalar Falco y probar las tres reglas con syscalls reales
+        run: bash scripts/security/lab-falco.sh
+      - name: ZAP baseline sobre staging y gate bloqueante Medium o superior
+        run: bash scripts/security/run-zap.sh
+      - name: Evidencias finales del clúster
+        if: always()
+        run: |
+          mkdir -p artifacts
+          kubectl get pods -A -o wide > artifacts/cluster-pods.txt 2>&1 || true
+          kubectl get clusterpolicy require-image-signature -o yaml > artifacts/applied-policy.yaml 2>&1 || true
+          kubectl logs -n equipo-02 deployment/aulaviva-api > artifacts/staging-logs.txt 2>&1 || true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: s10-dast-runtime-${{ github.sha }}
+          path: artifacts/
+          retention-days: 90
+  delivery:
+    needs: [security, quality, iac-scan, container-scan, sign-and-attest, dast]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Cierre bloqueante de la sesión 10
+        run: |
+          echo 'S10 OK: S09, calidad, IaC, imagen, firma, SLSA, admisión, Falco y DAST.'
+          echo '## Entrega S10 verificada' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Todos los controles terminaron correctamente. Los reportes se conservan 90 días.' >> "$GITHUB_STEP_SUMMARY"
