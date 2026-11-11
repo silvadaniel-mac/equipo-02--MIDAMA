@@ -23,18 +23,37 @@ spec:
           command: [/nodejs/bin/node, --input-type=module, -e]
           args:
             - |
+              let ready = false;
+              for (let attempt = 0; attempt < 30; attempt++) {
+                try {
+                  const response = await fetch('http://aulaviva-api/readyz', {signal: AbortSignal.timeout(5000)});
+                  await response.arrayBuffer();
+                  if (response.ok) { ready = true; break; }
+                } catch {}
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
+              if (!ready) throw new Error('Service no disponible desde el generador de carga');
               const stop = Date.now() + 120000;
               let errors = 0;
+              let requests = 0;
+              const failures = [];
               await Promise.all(Array.from({length: 12}, async () => {
                 while (Date.now() < stop) {
                   try {
                     const r = await fetch('http://aulaviva-api/lab/work', {signal: AbortSignal.timeout(5000)});
                     await r.arrayBuffer();
-                    if (!r.ok) errors++;
-                  } catch { errors++; }
+                    requests++;
+                    if (!r.ok) {
+                      errors++;
+                      if (failures.length < 5) failures.push({status: r.status});
+                    }
+                  } catch (error) {
+                    errors++;
+                    if (failures.length < 5) failures.push({name: error.name, message: error.message, cause: error.cause?.code});
+                  }
                 }
               }));
-              console.log(JSON.stringify({errors}));
+              console.log(JSON.stringify({requests, errors, failures}));
               process.exit(errors ? 1 : 0);
           resources:
             requests:
