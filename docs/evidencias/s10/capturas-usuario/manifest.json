@@ -1,0 +1,42 @@
+{
+  "run_id": 43120652802,
+  "commit": "952a24b241fa969e260d72c4522e5b3aaf2e85be",
+  "source": "Capturas originales tomadas por Miguel Briceño",
+  "captures": [
+    {
+      "filename": "01-pipeline-main.png",
+      "topic": "Pipeline completo en main",
+      "sha256": "b17f013a3cb28a3b81daac003702360fc1d50bf65bbe5a6dde62764b1de37329"
+    },
+    {
+      "filename": "02-checkov.png",
+      "topic": "Checkov y control negativo IaC",
+      "sha256": "711cdfe0c7410e2dc3b128da3883c583c9e5b26959999fd36a86a80458265ff4"
+    },
+    {
+      "filename": "03-trivy.png",
+      "topic": "Trivy sobre la imagen final",
+      "sha256": "40441122d647cc2ba9560962522fd5e8f3b371438ee5ed106d418eeb5bf391cb"
+    },
+    {
+      "filename": "04-cosign-slsa.png",
+      "topic": "Resumen de firma Cosign y attestation verificadas",
+      "sha256": "c1a4fc7b0744830661e88010c2c6011c5d9cbd82aaea24dfb504d85620950866"
+    },
+    {
+      "filename": "05-kyverno.png",
+      "topic": "Admisión positiva y rechazo de imagen sin firma en Kyverno",
+      "sha256": "2b84be5edcd3bce8184f843ef05513248526633f95ce097ed42bece415fe8554"
+    },
+    {
+      "filename": "06-falco.png",
+      "topic": "Falco: tres reglas e incidentes de simulacro",
+      "sha256": "21db06687d44251f2ca5fc2ab67bfe62c11b35982d646ddc3ad0f1c241ec53b8"
+    },
+    {
+      "filename": "07-zap.png",
+      "topic": "Informe visual de ZAP",
+      "sha256": "d9f339af411588e95f138d5e6cb8c36694520074f023d0818662a01b297798f6"
+    }
+  ]
+}
