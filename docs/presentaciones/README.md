@@ -1,9 +1,11 @@
 # Presentación S10 · AulaViva MIDAMA
 
-[AulaViva MIDAMA · Sesión 10](AulaViva_MIDAMA_Sesion10_DevSecOps_II_Final.pptx)
+[Descargar PowerPoint de la sesión 10](AulaViva_MIDAMA_Sesion10_DevSecOps_II_Final.pptx)
 
-12 diapositivas con el formato de la presentación S09 proporcionada por el equipo. Incluye capturas reales, notas de exposición y fuentes oficiales. La matriz editable relaciona cada criterio de la diapositiva 7 del profesor con su implementación y evidencia.
+La presentación corregida contiene 13 diapositivas y conserva el formato de S09. Explica el propósito de cada control, su resultado y su relación con AulaViva. Las siete capturas originales corresponden a la [ejecución S10 #14 en main](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/43120652802), commit `952a24b`.
 
-Las capturas corresponden al run inmutable `43115051073`, commit `119ab658d8c434cc8b06e73306e9a71684bed7fe`. Los checks más recientes del PR #8 y de main validan las correcciones posteriores descritas en [el índice de evidencia](../evidencias/s10/README.md).
+Los originales completos y sus hashes están en [capturas de Miguel](../evidencias/s10/capturas-usuario/README.md). El informe visual de ZAP conserva su alerta informativa. Los incidentes Falco se identifican como simulacro.
 
-Validación del archivo: 12 slides, relaciones internas correctas, tabla nativa en slide 10, fuentes del formato de referencia y reimportación comprobada. Se revisaron visualmente todas las diapositivas.
+La presentación cubre los jobs, Cosign verify, attestation SLSA, admisión, reglas Falco y ADR 0006 solicitados en la diapositiva 7 del profesor. Distingue el laboratorio y sus evidencias de los endpoints de negocio aún pendientes.
+
+La documentación técnica y los reportes históricos siguen disponibles en el [índice de evidencias S10](../evidencias/s10/README.md). Las notas de cada diapositiva identifican fuentes y alcance.
