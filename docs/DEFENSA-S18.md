@@ -17,7 +17,7 @@ Servidor HTTP real en loopback con SQLite temporal y JWT ficticio. No requiere A
 | --- | --- | --- |
 | Demo 15 | services/s18/demo.mjs | Flujo académico local y pipeline S10 de staging efímero aprobados; cloud permanente pendiente |
 | Arquitectura 15 | [C4 L3](c4/l3-component-s18.puml), [8 ADRs](ADR/registro-s18.md) | Decisión nueva propuesta, revisión pendiente |
-| DevSecOps 12 | [S10](sesiones/s10-supply-chain.md), Actions | Pipeline S10 ampliado aprobado en main; protección main activa; promoción GitOps externa pendiente |
+| DevSecOps 12 | [S10](sesiones/s10-supply-chain.md), Actions | Pipeline S10 ampliado aprobado en main; protección de ambas ramas main activa; promoción GitOps externa dev comprobada |
 | IA 12 | [model card](ai/model-card.md), [golden set](ai/golden-set.json), [guardrails](ai/guardrails.md) | Ragas recuperación aprobada; sistema híbrido 40/40, LLM temático 19/19, búsqueda literal 1/1 |
 | Resiliencia 10 | [SLO](resilience/slo.md), [game day](resilience/game-day.md) | Ejercicio SQLite, muestra corta |
 | FinOps 8 | [presupuesto](finops/cost-estimation.md) | Medición real de tokens de entrada y estimación, no factura |
@@ -30,10 +30,13 @@ Antonella: producto y roadmap; Daniel: C4 y ADRs; Ian: demo y calidad; Allen: se
 ## Roadmap
 1. Autenticación institucional, base PostgreSQL y staging permanente; mantener aislamiento.
 2. Ampliar tutor a explicación generativa, evaluación generativa independiente y revisión docente, privacidad de menores.
-3. GitOps externo, mantener protección main, SLO continuo, restauración RDS y medición de costos reales.
+3. Mantener GitOps y protección main, validar sincronización externa permanente, SLO continuo, restauración RDS y medición de costos reales.
 
 ## Evidencias
 [Índice](evidencias/s18/README.md). Usar el SHA exacto del run. Las pruebas históricas no cubrían el nuevo servicio; consultar las ejecuciones de S18 y S10 ampliado. El staging es efímero y usa SQLite de una réplica. No fabricar clases ni aprobaciones. No exponer el laboratorio a red pública.
 
 ## Validación final
 [Resultados de main 309e3e7, enlaces a ejecuciones y límites](evidencias/s18/cierre-main.md). Todos los workflows de ese SHA aprobaron. Esta nota de documentación no altera el código validado.
+
+## Cierre de infraestructura
+[Backend remoto S3 y locking](evidencias/s07/backend-s3.md) · [Promoción GitOps externa](evidencias/s08/promocion-externa.md). La validación de la raíz Kubernetes en S3 y el ejercicio aislado de state no equivalen a un apply Kubernetes remoto.
