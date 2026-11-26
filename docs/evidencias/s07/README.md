@@ -29,3 +29,6 @@ La publicación se realiza en la rama `feature/s07-k8s-iac`. Los resultados del 
 6. Revisión por pares.
 
 No se incluyen capturas fabricadas, digests ficticios ni notas de evaluación anticipadas.
+
+## Actualización 26/11/2026
+[S07 en main](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45751184474): laboratorio y publicación aprobados. [Validación S3 y bloqueo](backend-s3.md) completada con AWS Academy; se distingue del apply Kubernetes local. La captura literal de kubectl get all en el README sigue por incorporar.

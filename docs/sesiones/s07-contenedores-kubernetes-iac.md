@@ -22,7 +22,7 @@ Empaquetar la base del backend Node.js, desplegarla declarativamente en un clús
 | --- | ---: | --- | --- |
 | Dockerfile multi-stage y distroless | 20 | Etapa build con pruebas, runtime nonroot y healthcheck | CI debe construir, iniciar el contenedor y acreditar tamaño < 200 MB |
 | Manifiestos completos y válidos | 25 | Cinco objetos y Kustomize, probes, recursos y seguridad | CI ejecuta dry-run de servidor y rollout sobre kind; la ruta de Ingress requiere controlador aparte |
-| Terraform aplicable | 20 | Provider, módulo de namespace/Secret ficticio y backend S3 parcial | CI valida raíz remota sin backend y aplica raíz local; backend S3 real pendiente de cuenta/bucket |
+| Terraform aplicable | 20 | Provider, módulo de namespace/Secret ficticio y backend S3 parcial | CI aplica raíz local; raíz remota inicializada y validada en AWS Academy; escritura y locking S3 probados en raíz aislada |
 | HPA configurado y probado | 15 | CPU 60%, 2–5 réplicas, Job de carga | CI debe acreditar subida y regreso a 2 réplicas con Metrics Server |
 | ADR argumentado | 15 | ADR 0005 y referencia 0004 solicitada | Revisión por pares pendiente |
 | Puntualidad | 5 | Entrega mediante PR | Evalúa el docente antes del inicio de S08; no se asigna puntaje automáticamente |
@@ -52,7 +52,7 @@ La lámina 4 indica una expectativa < 80 MB para su ejemplo Python; la lámina 8
 - Revisar los resultados reales del PR y resolver cualquier fallo.
 - Captura real de `kubectl get all` incorporada en README.
 - Publicación GHCR y prueba de pull por digest (workflow manual o integración en main).
-- Configuración y prueba del backend remoto S3, con lock, bajo una cuenta autorizada del equipo.
+- Backend remoto S3 y lock: [prueba realizada](../evidencias/s07/backend-s3.md); apply Kubernetes remoto no realizado.
 - Revisión por un integrante y validación del docente. No se registra aprobación o nota anticipada.
 
 ## Próxima sesión

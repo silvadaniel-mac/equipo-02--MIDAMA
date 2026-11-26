@@ -14,3 +14,6 @@ Los PNG son reportes visuales de archivos y resultados reales, no capturas de Gi
 - Workflows ci.yml y GitOps validate.yml: actionlint terminó con código 0, sin diagnósticos.
 
 No se ejecutaron aquí Docker, GHCR, Cosign ni el clúster kind. No hay captura Synced/Healthy ni PR creados: la integración de GitHub rechazó la creación de una rama con 403 Resource not accessible by integration. No se modificó el remoto.
+
+## Actualización 26/11/2026
+[Promoción externa dev y protección de ambos repositorios comprobadas](promocion-externa.md).
