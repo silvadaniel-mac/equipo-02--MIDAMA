@@ -1,0 +1,22 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+LAYOUT_LEFT_RIGHT()
+Person(docente, "Docente ficticio")
+Person(estudiante, "Estudiante ficticio")
+Container_Boundary(api,"AulaViva - laboratorio academico S18") {
+  Component(router,"Router HTTP","Node.js","Contrato parcial, health y readiness")
+  Component(auth,"Identidad y autorizacion","JWT HS256","Firma, expiracion, tenant, curso y rol")
+  Component(content,"Gestion de contenidos","Node.js","Publicacion y consulta")
+  Component(tutor,"Tutor contextual","Node.js","Recuperacion y abstencion")
+  Component(guard,"Guardrails","Node.js","Filtros lexicos y citas")
+  ComponentDb(db,"Persistencia local","SQLite","Material por colegio y curso")
+}
+Rel(docente,router,"Publica","HTTP/JWT")
+Rel(estudiante,router,"Consulta","HTTP/JWT")
+Rel(router,auth,"Autoriza")
+Rel(router,content,"Gestiona")
+Rel(router,tutor,"Pregunta")
+Rel(content,db,"Lee y escribe","SQL parametrizado")
+Rel(tutor,db,"Recupera material autorizado")
+Rel(tutor,guard,"Filtra")
+@enduml

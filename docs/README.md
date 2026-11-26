@@ -28,3 +28,6 @@ El contrato de negocio, la implementación del laboratorio y la arquitectura fut
 ## Sesión 10
 
 [Supply chain y rúbrica](sesiones/s10-supply-chain.md) · [ADR 0006](adr/0006-supply-chain.md) · [Evidencias](evidencias/s10/README.md) · [Runbook SRE inicial](runbooks/aulaviva-availability.md).
+
+## Entrega S18
+[Entrega y trazabilidad](DEFENSA-S18.md) · [Evidencias](evidencias/s18/README.md).

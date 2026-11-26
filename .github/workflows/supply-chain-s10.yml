@@ -1,7 +1,7 @@
 name: AulaViva S10 Supply Chain
 on:
   push:
-    branches: [main, feature/s10-supply-chain]
+    branches: [main, feature/s10-supply-chain, feature/s18-final-defense]
   workflow_dispatch:
 permissions:
   contents: read
@@ -24,6 +24,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run ci:quality
+      - run: node --test services/s18/integration.test.mjs
       - run: git diff --exit-code -- packages/api-client/src/schema.d.ts
   iac-scan:
     runs-on: ubuntu-24.04
@@ -199,6 +200,11 @@ jobs:
         run: bash scripts/security/lab-falco.sh
       - name: ZAP baseline sobre staging y gate bloqueante Medium o superior
         run: bash scripts/security/run-zap.sh
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Flujo académico S18 en staging firmado y DAST
+        run: bash scripts/lab-academic-s18.sh
       - name: Evidencias finales del clúster
         if: always()
         run: |

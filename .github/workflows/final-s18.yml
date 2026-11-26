@@ -1,0 +1,82 @@
+name: AulaViva S18 academic lab
+on:
+  pull_request:
+  push:
+    branches: [main, 'feature/s18-final-defense']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s18-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  academic-lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Integration tests and useful coverage
+        run: |
+          set -o pipefail
+          node --test --experimental-test-coverage services/s18/integration.test.mjs | tee docs/evidencias/s18/integration-tap.txt
+      - name: Golden set baseline
+        run: node services/s18/evaluate.mjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Ragas retrieval metrics (no LLM judge)
+        run: |
+          python -m pip install ragas==0.4.4 rapidfuzz==3.14.1 rouge-score==0.1.2
+          python services/s18/ragas_eval.py
+      - name: Availability and recovery exercise
+        run: node services/s18/operations.mjs
+      - name: End-to-end demo
+        run: |
+          set -o pipefail
+          node services/s18/demo.mjs | tee docs/evidencias/s18/demo-local.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s18-academic-lab-${{ github.sha }}
+          path: docs/evidencias/s18/
+          retention-days: 90
+  llm-experiment:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      S18_OLLAMA_MODEL: qwen2.5:7b
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Start local Ollama model (no API key)
+        run: |
+          docker run -d --name s18-ollama -p 127.0.0.1:11434:11434 ollama/ollama:0.40.18
+          curl --retry 30 --retry-all-errors --retry-delay 2 --fail http://127.0.0.1:11434/api/version
+          docker exec s18-ollama ollama pull "$S18_OLLAMA_MODEL"
+          mkdir -p docs/evidencias/s18
+          docker exec s18-ollama ollama list | tee docs/evidencias/s18/llm-model-version.txt
+          docker image inspect ollama/ollama:0.40.18 --format '{{json .RepoDigests}}' >> docs/evidencias/s18/llm-model-version.txt
+      - name: Golden set on real constrained LLM
+        id: llm
+        continue-on-error: true
+        run: node services/s18/evaluate.mjs
+      - name: Measure input tokens before and after
+        run: node services/s18/finops-llm.mjs
+      - name: Store experiment outputs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s18-llm-experiment-${{ github.sha }}
+          path: docs/evidencias/s18/
+          retention-days: 90
+      - name: Preserve actual evaluation outcome
+        if: always()
+        run: |
+          docker rm -f s18-ollama || true
+          test "${{ steps.llm.outcome }}" = success

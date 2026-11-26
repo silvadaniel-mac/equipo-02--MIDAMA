@@ -11,3 +11,6 @@ Los estados pertenecen a cada ADR. Un documento propuesto requiere revisión del
 | 0005 | [Plataforma Kubernetes e IaC](0005-plataforma-k8s.md) | S07 |
 
 El PPT S07 pide `docs/adr/0004-plataforma-k8s.md`. Como 0004 ya identifica la decisión S06, esa [ruta de compatibilidad](../adr/0004-plataforma-k8s.md) remite al ADR 0005 sin sobrescribir el historial.
+
+## S18
+[Registro consolidado de ocho decisiones](registro-s18.md) y [ADR 0008](0008-tutor-rag.md). Se conservan enlaces históricos.

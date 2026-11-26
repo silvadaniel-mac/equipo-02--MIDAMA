@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aulaviva-academic
+  namespace: equipo-02
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aulaviva-academic
+  template:
+    metadata:
+      labels:
+        app: aulaviva-academic
+    spec:
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: ghcr-pull
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: academic
+          image: IMAGE_BY_DIGEST
+          args: ["s18/server.mjs"]
+          ports:
+            - name: http
+              containerPort: 8081
+          env:
+            - name: S18_HOST
+              value: "0.0.0.0"
+            - name: S18_DB
+              value: "/data/lab.sqlite"
+            - name: S18_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: s18-lab-identity
+                  key: signing-material
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests: {cpu: 100m, memory: 64Mi}
+            limits: {cpu: 500m, memory: 128Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          readinessProbe:
+            httpGet: {path: /readyz, port: http}
+            periodSeconds: 3
+          livenessProbe:
+            httpGet: {path: /healthz, port: http}
+            periodSeconds: 10
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aulaviva-academic
+  namespace: equipo-02
+spec:
+  selector:
+    app: aulaviva-academic
+  ports:
+    - port: 80
+      targetPort: http

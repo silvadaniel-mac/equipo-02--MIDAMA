@@ -1,0 +1,30 @@
+# Evidencias S18
+
+El workflow AulaViva S18 academic lab genera artefactos por SHA: integración TAP, demo, evaluación JSON, operación JSON. Descargar el artefacto del run correspondiente, no utilizar métricas de otro commit. Reproducir con Node 24 y los cuatro comandos de DEFENSA-S18.md. No hay evidencia de un staging remoto permanente, Ragas o facturación AWS.
+
+## Primera ejecución comprobada
+[Run 45739059840](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739059840), SHA 3c8541c0325e5d6e20d6f922268aad874b7ed2ac: academic-lab success. Logs: 6/6 integración, cobertura de líneas 96,75% (conjunto instrumentado), 40/40 golden set extractivo, p95 4,67 ms, 100/100 probes, p95 2,09 ms, RTO 6,97 ms y antigüedad del snapshot 7 ms (laboratorio temporal), demo 6 pasos. Contexto 16036 → 3812 bytes y duplicados 6868 → 3812 bytes. No son Ragas, factura ni recuperación cloud. Las métricas corresponden a ese commit, no a futuras ejecuciones.
+
+S10 ampliado: artifacts/academic incluye flujo HTTP contra el pod admitido por Kyverno y reporte ZAP pasivo no autenticado; consultar ejecución antes de afirmar éxito.
+
+### Remediación SAST
+[Run S08 45739071574](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739071574): la regla no-shell-exec detectó cuatro llamadas DatabaseSync.exec de SQLite (DDL y transacciones SQL fijas), no ejecución de shell. Se reemplazaron por sentencias preparadas individuales, conservando transacción y parámetros. No se deshabilitó la regla ni se agregaron excepciones. Verificar nueva ejecución.
+
+SAST [run 45739331906](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739331906) también bloqueó la llamada HTTP directa del experimento FinOps. Se centralizó el transporte local Ollama en una función de loopback fijo, sin redirecciones, sin hostname dinámico, con timeout y sin datos reales. No se desactivó el gate. La conexión HTTP queda limitada a la máquina del runner; producción debe usar TLS y autenticación.
+
+[Run 45739338113](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739338113): Ragas 0.3.8 falló al importar por incompatibilidad con langchain-community 0.4.2 (VertexAI eliminado). Se actualizó a Ragas 0.4.4, versión que corrige el import y una vulnerabilidad publicada, y se fijaron dependencias de métricas. No se falseó ni omitió el gate. Referencia: https://pypi.org/project/ragas/0.4.4/.
+
+### Ejecución Ragas y LLM real
+[Run 45739533067](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739533067), SHA cb47200: 6/6, cobertura 96,99%, 40/40 extractivo, Ragas 0.4.4 precisión 0,9999999999/recall 1,0, 100/100 probes, RTO 5,05 ms y RPO 5 ms en laboratorio, demo 6 pasos. El experimento real de copia literal Qwen2.5 dio 20/40; guardrail rechazó 20/20 respuestas con fuente. Medición real de entrada Ollama: corpus 1005 → 361 tokens, duplicados 522 → 361. La corrección selecciona índice mediante LLM y cita del servidor. El gate no se desactiva. Consultar la ejecución posterior para verificar.
+
+### Segunda iteración y siguiente hipótesis
+[Run 45739894435](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739894435), SHA 0362644: integración 6/6, 95,77% líneas, extractivo 40/40, Ragas precisión 0,9999999999 y recall 1,0, 100/100 probes, RTO 5,98 ms, RPO 6 ms. El LLM 1.5B alcanzó 25/40 (5/20 con fuente, 15 abstenciones seguras). [S10 45739894346](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739894346) completó con éxito; [S07](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739902438) y [S08](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739902371) también. Se ensaya 7B con prompt temático en español, sin modificar la evaluación.
+
+### Tercera iteración observada
+[Run 45741749563](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45741749563), SHA abe6bbe: academic-lab aprobado; LLM 7B 38/40, 18/20 con fuente, 8/8 fuera de contexto, 6/6 guardrails, 6/6 aislamiento. p95 5839,35 ms. El gate falló y el resultado se conserva. Se ensaya revisión binaria de pertinencia tras abstención explícita, sin modificar casos ni umbral. Los logs posteriores mostrarán diagnósticos de casos sintéticos fallidos.
+
+### Cuarta iteración observada
+[Run 45742439804](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45742439804), SHA 513dd34: 39/40 LLM (19/20 con fuente; 20/20 restantes). Caso 16 `1810`: HTTP 201, recuperación correcta de historia, modo llm-rejected. p95 8921,23 ms. Se modifica la estrategia de consultas numéricas a extracción literal verificable con nueva prueba de regresión; no se elimina ningún caso ni se reduce el gate de 40/40. El modo literal solo cuenta si la salida real del LLM coincide y la fuente es exacta. Los fallos anteriores quedan registrados.
+
+### Quinta iteración observada y corrección arquitectónica
+[Run 45743143698](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45743143698), SHA 9791532: 39/40, único fallo 1810 con llm-rejected; academic-lab aprobado. S05, S07, S08 y [S10](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45743143753) aprobados. La solución híbrida no obliga al LLM a decidir coincidencias literales: el código ejecuta la búsqueda exacta, y el modelo sigue decidiendo las 19 consultas temáticas. El gate end-to-end continúa en 40/40 y se reportan por separado las rutas literal y semántica. Los fallos históricos del modelo permanecen visibles. No equivale a aprobar 40/40 mediante un LLM puro. Verificar el nuevo SHA.
