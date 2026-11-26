@@ -89,7 +89,7 @@ export function createAcademicServer({dbPath=':memory:',secret,model=''}={}) {
       return send(201,result,location);
     }catch{if(!res.headersSent)fail(503,'Service unavailable','Servicio temporalmente no disponible.');else res.end();}
   });
-  server.requestTimeout=25000; server.headersTimeout=5000;
+  server.requestTimeout=65000; server.headersTimeout=5000;
   return {server,db,close:()=>new Promise((resolve,reject)=>server.close(e=>{db.close();e?reject(e):resolve();}))};
 }
 if(process.argv[1]===fileURLToPath(import.meta.url)) {

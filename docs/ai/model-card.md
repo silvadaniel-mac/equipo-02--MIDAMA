@@ -9,3 +9,6 @@ Responsable: AI/Data Lead; revisión QA y docente pendiente. Versión: recuperad
 - Privacidad: Ley 21.719 (vigencia 1 de diciembre de 2026) y art. 16 quáter de Ley 19.628 modificada: especial resguardo de menores, finalidad, minimización, base de licitud y retención; no constituye certificación legal. No registrar secretos ni datos reales en prompts; destruir las bases temporales. Detener el piloto ante fuga, corregir y repetir pruebas.
 
 Referencias: [BCN](https://www.bcn.cl/leychile/navegar?idNorma=1209272&idVersion=2026-12-01), [Ragas](https://docs.ragas.io/en/latest/concepts/metrics/available_metrics/), [Charter](../../CHARTER.md).
+
+## Extensión evaluable
+CI S18 ejecuta Ragas 0.3.8 NonLLMContextPrecisionWithReference y NonLLMContextRecall sobre los 20 casos con fuente, con gate 0,85. No es el juez LLM de faithfulness; la cita se verifica literalmente. Un job separado descarga Qwen2.5 1.5B mediante Ollama, restringe salida JSON por esquema y exige respuesta con cita exacta, no fallback. El modelo genera selección/cita, no explicación libre. Los resultados y digest se guardan en artifacts; consultar el run antes de afirmar aprobación. Referencias: https://docs.ragas.io/en/v0.3.8/concepts/metrics/available_metrics/context_recall/ y https://ollama.com/library/qwen2.5:1.5b.
