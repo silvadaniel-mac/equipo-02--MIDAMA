@@ -22,3 +22,6 @@ SAST [run 45739331906](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/acti
 
 ### Tercera iteración observada
 [Run 45741749563](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45741749563), SHA abe6bbe: academic-lab aprobado; LLM 7B 38/40, 18/20 con fuente, 8/8 fuera de contexto, 6/6 guardrails, 6/6 aislamiento. p95 5839,35 ms. El gate falló y el resultado se conserva. Se ensaya revisión binaria de pertinencia tras abstención explícita, sin modificar casos ni umbral. Los logs posteriores mostrarán diagnósticos de casos sintéticos fallidos.
+
+### Cuarta iteración observada
+[Run 45742439804](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45742439804), SHA 513dd34: 39/40 LLM (19/20 con fuente; 20/20 restantes). Caso 16 `1810`: HTTP 201, recuperación correcta de historia, modo llm-rejected. p95 8921,23 ms. Se modifica la estrategia de consultas numéricas a extracción literal verificable con nueva prueba de regresión; no se elimina ningún caso ni se reduce el gate de 40/40. El modo literal solo cuenta si la salida real del LLM coincide y la fuente es exacta. Los fallos anteriores quedan registrados.
