@@ -4,7 +4,7 @@
 | --- | --- | --- |
 | Fuga entre colegios | Verificar JWT, curso y colegio; SQL parametrizado por scope | integración y 6 intentos golden set |
 | Inyección en consulta o material | Filtro léxico, fuentes tratadas como datos | integración y casos guardrail |
-| Alucinación / cita falsa | Extractivo; adaptador verifica cita literal e ID | dobles de prueba y evaluación |
+| Alucinación / cita falsa | Extractivo; adaptador valida índice autorizado; el servidor construye cita literal e ID | dobles de prueba y evaluación |
 | PII | Filtro de correo y RUT en preguntas/material recuperado; datos exclusivamente ficticios | integración |
 | Sin material | Abstención | 8 casos |
 | Falla del LLM | Timeout y fallback extractivo | doble de prueba |

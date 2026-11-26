@@ -18,3 +18,5 @@ Mediciones reproducibles en evaluate.mjs: comparar bytes JSON del corpus complet
 
 ## Experimento con modelo real
 El job LLM ejecuta finops-llm.mjs para medir prompt_eval_count en 5 preguntas, corpus completo vs recuperación, duplicados vs deduplicación; salida limitada a 1 token, comparación controlada. Se guardan tokens de entrada y latencia del proveedor local. El experimento no implica facturación ni optimización ARM; verificar resultados en el artefacto del run.
+
+Resultados reales de Qwen2.5 1.5B, [run 45739533067](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739533067): 1005 → 361 tokens de entrada al recuperar fuentes (reducción 64,1%); 522 → 361 tokens en comparación de duplicados controlados (30,8%). Son cinco preguntas y salida de un token; no facturación ni costo de AWS. El modelo de copia exacta no superó las preguntas con fuente en ese mismo run; la mejora de tokens no acredita calidad generativa.

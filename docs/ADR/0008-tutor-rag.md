@@ -16,3 +16,6 @@ Validar identidad, tenant y curso antes de recuperar. Usar un baseline extractiv
 
 ## Consecuencias
 El corpus se limita a descripciones sintéticas; no se descargan PDF ni URLs. Las reglas léxicas no son protección exhaustiva. SQLite de instancia única no reemplaza PostgreSQL/RDS. Antes del piloto: revisión docente, autenticación institucional, pruebas adversariales, evaluación Ragas y medición de costo. No presentar el baseline como LLM validado.
+
+### Iteración S18
+El experimento de copia generativa exacta falló 20/20 preguntas con fuente: se cambió a selección LLM de pasaje y salida extractiva determinista. No se debilita la autorización ni el gate de exactitud. La generación de explicaciones libres sigue pendiente de evaluación y revisión docente.
