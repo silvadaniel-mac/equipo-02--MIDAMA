@@ -15,9 +15,9 @@ Servidor HTTP real en loopback con SQLite temporal y JWT ficticio. No requiere A
 ## Trazabilidad
 | Criterio S18 | Evidencia | Alcance |
 | --- | --- | --- |
-| Demo 15 | services/s18/demo.mjs | Flujo académico local; staging cloud pendiente |
+| Demo 15 | services/s18/demo.mjs | Flujo académico local; staging efímero kind incorporado, validar run; cloud permanente pendiente |
 | Arquitectura 15 | [C4 L3](c4/l3-component-s18.puml), [8 ADRs](ADR/registro-s18.md) | Decisión nueva propuesta, revisión pendiente |
-| DevSecOps 12 | [S10](sesiones/s10-supply-chain.md), Actions | Pipeline histórico, nuevo servicio exige pruebas; main y GitOps externo pendientes |
+| DevSecOps 12 | [S10](sesiones/s10-supply-chain.md), Actions | Pipeline histórico ampliado para S18; validar run; main y GitOps externo pendientes |
 | IA 12 | [model card](ai/model-card.md), [golden set](ai/golden-set.json), [guardrails](ai/guardrails.md) | Extractivo con adaptador, Ragas/LLM real pendientes |
 | Resiliencia 10 | [SLO](resilience/slo.md), [game day](resilience/game-day.md) | Ejercicio SQLite, muestra corta |
 | FinOps 8 | [presupuesto](finops/cost-estimation.md) | Proxy de bytes y estimación, no factura |
@@ -33,4 +33,4 @@ Antonella: producto y roadmap; Daniel: C4 y ADRs; Ian: demo y calidad; Allen: se
 3. GitOps externo, protección main, SLO continuo, restauración RDS y medición de costos reales.
 
 ## Evidencias
-[Índice](evidencias/s18/README.md). Usar el SHA exacto del run. No afirmar que las pruebas históricas cubren el nuevo servicio. No fabricar clases ni aprobaciones. No exponer el laboratorio a red pública.
+[Índice](evidencias/s18/README.md). Usar el SHA exacto del run. Las pruebas históricas no cubrían el nuevo servicio; consultar las ejecuciones de S18 y S10 ampliado. El staging es efímero y usa SQLite de una réplica. No fabricar clases ni aprobaciones. No exponer el laboratorio a red pública.

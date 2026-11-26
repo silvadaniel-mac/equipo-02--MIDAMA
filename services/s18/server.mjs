@@ -30,14 +30,14 @@ export function createAcademicServer({dbPath=':memory:',secret,model=''}={}) {
   const getContents=(school,course)=>db.prepare('SELECT id,title,description,fileUrl,createdAt FROM content WHERE school=? AND course=? ORDER BY id').all(school,course).map(({description,...row})=>description===null?row:{...row,description});
   const server=http.createServer(async(req,res)=>{
     const trace=randomUUID(); let path='/';
-    res.setHeader('X-Trace-Id',trace);res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Content-Security-Policy',"default-src 'none'; frame-ancestors 'none'");
+    res.setHeader('X-Trace-Id',trace);res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Content-Security-Policy',"default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'");res.setHeader('X-Frame-Options','DENY');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('Cross-Origin-Resource-Policy','same-origin');res.setHeader('Permissions-Policy','camera=(), microphone=(), geolocation=()');
     const send=(status,body,location)=>{if(location)res.setHeader('Location',location);res.writeHead(status,{'Content-Type':status>=400?'application/problem+json':'application/json'});res.end(JSON.stringify(body));};
     const fail=(status,title,detail)=>send(status,{type:'about:blank',title,status,detail,instance:path,trace_id:trace});
     try {
       const url=new URL(req.url,'http://localhost');path=url.pathname;
       if(req.method==='GET'&&path==='/healthz')return send(200,{status:'alive'});
       if(req.method==='GET'&&path==='/readyz'){db.prepare('SELECT 1').get();return send(200,{status:'ready'});}
-      if(req.method==='GET'&&path==='/')return send(200,{service:'aulaviva-s18',stage:'staging-local',release:process.env.RELEASE_SHA||'local',tutorMode:model?'ollama-optional':'extractive'});
+      if(req.method==='GET'&&path==='/')return send(200,{service:'aulaviva-s18',stage:'s18-academic-lab',release:process.env.RELEASE_SHA||'local',tutorMode:model?'ollama-optional':'extractive'});
       const m=path.match(/^\/api\/v1\/schools\/([\w-]+)\/courses\/([\w-]+)\/(content|tutor-queries)$/);
       if(!m)return fail(404,'Not found','Ruta no disponible en el alcance S18.');
       const user=auth(req.headers.authorization,secret);
@@ -91,5 +91,5 @@ export function createAcademicServer({dbPath=':memory:',secret,model=''}={}) {
 if(process.argv[1]===fileURLToPath(import.meta.url)) {
   const secret=process.env.S18_SECRET;
   if(process.argv[2]==='token') {if(!secret||Buffer.byteLength(secret)<32)throw Error('Configura S18_SECRET'); console.log(issueToken(secret,process.argv[3]));}
-  else {const app=createAcademicServer({secret,dbPath:process.env.S18_DB||'aulaviva-s18.sqlite',model:process.env.S18_OLLAMA_MODEL||''});app.server.listen(Number(process.env.S18_PORT||8081),'127.0.0.1',()=>console.log('Staging académico local en http://127.0.0.1:'+(process.env.S18_PORT||8081)));process.once('SIGTERM',()=>app.close());process.once('SIGINT',()=>app.close());}
+  else {const app=createAcademicServer({secret,dbPath:process.env.S18_DB||'aulaviva-s18.sqlite',model:process.env.S18_OLLAMA_MODEL||''});app.server.listen(Number(process.env.S18_PORT||8081),process.env.S18_HOST||'127.0.0.1',()=>console.log('Staging académico en puerto '+(process.env.S18_PORT||8081)));process.once('SIGTERM',()=>app.close());process.once('SIGINT',()=>app.close());}
 }

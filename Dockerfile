@@ -8,6 +8,8 @@ FROM ${BUILD_IMAGE} AS build
 WORKDIR /build
 COPY services/api/ ./
 RUN node --check server.mjs && node --test server.test.mjs
+COPY services/s18/server.mjs services/s18/tutor.mjs ./s18/
+RUN node --check s18/server.mjs && node --check s18/tutor.mjs
 
 # Node oficial incorpora OpenSSL y zlib. Solo necesita glibc, libstdc++ y libgcc.
 # Copiamos los binarios y su inventario real; no las bibliotecas SSL del sistema.
@@ -30,6 +32,7 @@ WORKDIR /app
 ARG RELEASE_SHA=local
 ENV NODE_ENV=production PORT=8080 RELEASE_SHA=${RELEASE_SHA}
 COPY --from=build --chown=65532:65532 /build/server.mjs ./server.mjs
+COPY --from=build --chown=65532:65532 /build/s18/ ./s18/
 USER 65532:65532
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD ["/nodejs/bin/node", "-e", "fetch('http://127.0.0.1:8080/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]

@@ -4,3 +4,6 @@
 !services/api/server.mjs
 !services/api/server.test.mjs
 !Dockerfile
+!services/s18/
+!services/s18/server.mjs
+!services/s18/tutor.mjs
