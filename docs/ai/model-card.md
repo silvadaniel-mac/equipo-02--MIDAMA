@@ -15,3 +15,6 @@ CI S18 ejecuta Ragas 0.4.4 NonLLMContextPrecisionWithReference y NonLLMContextRe
 
 ### Iteración observada
 Run [45739533067](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739533067), SHA cb47200: Qwen2.5 1.5B con copia literal generativa obtuvo 20/40 (0/20 con fuente; 20/20 restantes). Los 20 resultados con fuente fueron rechazados por el verificador: no se presentó una cita falsa. Se cambió el diseño: el modelo selecciona un índice permitido y la aplicación devuelve texto e ID directamente del corpus autorizado. Se mantiene el gate de fuente esperada y modo real del modelo. Verificar el nuevo run antes de afirmar aprobación. No se trata de generación libre ni evaluación pedagógica.
+
+### Tercera iteración del experimento
+El modelo 1.5B con selección de índice alcanzó 25/40 (5/20 con fuente; 15 abstenciones seguras) en [run 45739894435](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739894435). Se ensaya Qwen2.5 7B y se aclara en español que una consulta temática corta no requiere una pregunta completa. Se incluyen títulos, sin cambiar corpus, preguntas, criterios, guardrails ni modo de evaluación. El servicio por defecto permanece extractivo; no se afirma éxito antes de ejecutar.

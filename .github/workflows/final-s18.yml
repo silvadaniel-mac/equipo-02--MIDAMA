@@ -46,9 +46,9 @@ jobs:
   llm-experiment:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
-      S18_OLLAMA_MODEL: qwen2.5:1.5b
+      S18_OLLAMA_MODEL: qwen2.5:7b
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
