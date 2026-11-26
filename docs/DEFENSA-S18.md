@@ -18,9 +18,9 @@ Servidor HTTP real en loopback con SQLite temporal y JWT ficticio. No requiere A
 | Demo 15 | services/s18/demo.mjs | Flujo académico local; staging efímero kind incorporado, validar run; cloud permanente pendiente |
 | Arquitectura 15 | [C4 L3](c4/l3-component-s18.puml), [8 ADRs](ADR/registro-s18.md) | Decisión nueva propuesta, revisión pendiente |
 | DevSecOps 12 | [S10](sesiones/s10-supply-chain.md), Actions | Pipeline histórico ampliado para S18; validar run; main y GitOps externo pendientes |
-| IA 12 | [model card](ai/model-card.md), [golden set](ai/golden-set.json), [guardrails](ai/guardrails.md) | Extractivo con adaptador, Ragas/LLM real pendientes |
+| IA 12 | [model card](ai/model-card.md), [golden set](ai/golden-set.json), [guardrails](ai/guardrails.md) | Recuperación Ragas aprobada en runs previos; tutor híbrido (LLM temático y búsqueda literal determinista), nueva evaluación pendiente |
 | Resiliencia 10 | [SLO](resilience/slo.md), [game day](resilience/game-day.md) | Ejercicio SQLite, muestra corta |
-| FinOps 8 | [presupuesto](finops/cost-estimation.md) | Proxy de bytes y estimación, no factura |
+| FinOps 8 | [presupuesto](finops/cost-estimation.md) | Medición real de tokens de entrada y estimación, no factura |
 | Calidad 8 | integration.test.mjs, CI | Pruebas reproducibles |
 | Panel, equipo y tiempo 20 | Charter y reparto de la PPT | No afirmar puntaje oral ni asistencia |
 

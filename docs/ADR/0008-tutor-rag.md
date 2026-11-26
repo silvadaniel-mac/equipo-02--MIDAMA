@@ -19,3 +19,6 @@ El corpus se limita a descripciones sintéticas; no se descargan PDF ni URLs. La
 
 ### Iteración S18
 El experimento de copia generativa exacta falló 20/20 preguntas con fuente: se cambió a selección LLM de pasaje y salida extractiva determinista. No se debilita la autorización ni el gate de exactitud. La generación de explicaciones libres sigue pendiente de evaluación y revisión docente.
+
+### Decisión de enrutamiento híbrido
+El experimento de extracción de números mediante LLM mantuvo el fallo del caso 1810 (39/40 del sistema). La coincidencia exacta es una tarea de recuperación, no de generación ni de inferencia: el componente de búsqueda literal devuelve exclusivamente el pasaje seguro autorizado que contiene el token completo y se abstiene ante ambigüedad. La selección temática sigue usando el modelo real opcional. Evaluar rutas separadamente y nunca atribuir búsqueda literal al LLM. No se reducen los 40 casos de aceptación end-to-end.
