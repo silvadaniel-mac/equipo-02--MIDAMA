@@ -107,3 +107,7 @@ El administrador debe activar protección de `main`, revisión de PR y checks ob
 El pipeline conserva los controles S09 y agrega Checkov sobre Terraform, Trivy sobre la imagen final, firma Cosign keyless, attestation SLSA y verificación por identidad exacta. Despliega esa imagen por digest en kind, exige firma/provenance con Kyverno y comprueba tres reglas Falco con syscalls reales. ZAP baseline analiza el staging y bloquea Medium/High. Los controles negativos prueban el rechazo de IaC insegura, una imagen sin firma y una identidad ajena. Cada alerta Falco High genera un registro de incidente.
 
 El staging es temporal y desaparece con el runner. Los endpoints académicos aún no implementados responden 501. El análisis no acredita seguridad de flujos que todavía no existen. La matriz de la consigna y los resultados del run se mantienen en los enlaces anteriores.
+
+## Entrega final S18
+
+[Documentación final y matriz de la rúbrica](docs/DEFENSA-S18.md) · [Evidencias reproducibles](docs/evidencias/s18/README.md). S18 añade un servicio académico local separado; el alcance del servidor histórico no cambia.

@@ -1,0 +1,19 @@
+import { readFile,writeFile,mkdir } from 'node:fs/promises';
+import { randomBytes,randomUUID } from 'node:crypto';
+import { createAcademicServer,issueToken } from './server.mjs';
+import { contextPrompt,retrieve } from './tutor.mjs';
+const outdir=new URL('../../docs/evidencias/s18/',import.meta.url);await mkdir(outdir,{recursive:true});
+const data=JSON.parse(await readFile(new URL('../../docs/ai/golden-set.json',import.meta.url),'utf8'));
+const model=process.env.S18_OLLAMA_MODEL||'';
+const secret=randomBytes(32).toString('hex');const a=createAcademicServer({secret,model});await new Promise(r=>a.server.listen(0,'127.0.0.1',r));
+const origin='http://127.0.0.1:'+a.server.address().port,base='/api/v1/schools/sch_01/courses/crs_01';
+const call=(path,who,body)=>fetch(origin+path,{method:'POST',headers:{authorization:'Bearer '+issueToken(secret,who),'content-type':'application/json','idempotency-key':randomUUID()},body:JSON.stringify(body)});
+try{
+ const corpus=[];for(const m of data.materials){const r=await call(base+'/content','teacher',{title:m.title,description:m.description,fileUrl:'https://example.org/'+m.key+'.pdf'});if(r.status!==201)throw Error('seed failed');corpus.push({...await r.json(),key:m.key});}
+ const rows=[];let fullBytes=0,selectedBytes=0,duplicateBytes=0,dedupBytes=0;
+ for(const c of data.cases){const t=performance.now();const r=await call(base+'/tutor-queries',c.kind==='cross-tenant'?'outsider':'student',{question:c.question});const body=await r.json();const ids=(body.contentIds||[]).map(id=>corpus.find(x=>x.id===id)?.key||'unknown');const expected=c.expected;const exact=expected&&body.answer===corpus.find(x=>x.key===expected)?.description;const mode=r.headers.get('x-tutor-mode');const pass=c.kind==='cross-tenant'?r.status===404:r.status===201&&(expected?ids.length===1&&ids[0]===expected&&exact&&(!model||mode==='llm-verified-quote'):ids.length===0);rows.push({id:c.id,kind:c.kind,status:r.status,pass,expected:expected||null,actual:ids,mode,ms:Math.round((performance.now()-t)*100)/100});
+ if(c.kind==='grounded'){const selected=retrieve(c.question,corpus);fullBytes+=Buffer.byteLength(contextPrompt(c.question,corpus));selectedBytes+=Buffer.byteLength(contextPrompt(c.question,selected));const doubled=[...selected,...selected];duplicateBytes+=Buffer.byteLength(contextPrompt(c.question,doubled));dedupBytes+=Buffer.byteLength(contextPrompt(c.question,[...new Map(doubled.map(s=>[s.id,s])).values()]));}}
+ const groups=Object.fromEntries([...new Set(rows.map(r=>r.kind))].map(kind=>{const rs=rows.filter(r=>r.kind===kind);return [kind,{passed:rs.filter(x=>x.pass).length,total:rs.length}];}));const grounded=rows.filter(r=>r.kind==='grounded');const latency=rows.map(r=>r.ms).sort((a,b)=>a-b);
+ const out={scope:'HTTP local, datos sintéticos; no Ragas ni revisión docente',commit:process.env.GITHUB_SHA||'local',model:model||'extractive-baseline-no-LLM',date:new Date().toISOString(),passed:rows.filter(x=>x.pass).length,total:rows.length,groups,groundedExactMatch:grounded.filter(r=>r.pass).length/grounded.length,modeCounts:Object.fromEntries([...new Set(rows.map(r=>r.mode||'none'))].map(m=>[m,rows.filter(r=>(r.mode||'none')===m).length])),p95Ms:latency[Math.ceil(latency.length*.95)-1],finopsProxy:{fullCorpusBytes:fullBytes,retrievedBytes:selectedBytes,duplicatedContextBytes:duplicateBytes,deduplicatedContextBytes:dedupBytes,note:'Bytes JSON, no tokens facturados ni costo real.'},rows};
+ await writeFile(new URL(model?'llm-results.json':'evaluation-results.json',outdir),JSON.stringify(out,null,2)+'\n');console.log(JSON.stringify({...out,rows:undefined},null,2));if(out.passed!==out.total)process.exitCode=1;
+}finally{await a.close();}
