@@ -1,0 +1,17 @@
+AULAVIVA — MIDAMA | ENTREGA FINAL S18
+26/11/2026
+
+Entregables: Word Arial 12 justificado; PPT de 22 diapositivas siguiendo la identidad visual de Sesion 3 MIDAMA, ordenada por los seis roles (PO agrupa pitch y roadmap); carpeta Evidencias.
+
+Repositorio: https://github.com/silvadaniel-mac/equipo-02--MIDAMA
+GitOps: https://github.com/silvadaniel-mac/equipo-02-gitops
+Corte MIDAMA 76c5005, cinco workflows exitosos; GitOps b650388, PR #3 fusionado y validado.
+
+Subir el ZIP si el aula acepta comprimidos; si pide archivos separados, extraer y subir Word y PPT con los enlaces de repositorios y evidencias. No se presupone una instrucción de aula que no fue vista.
+No subir archivos .pem, credenciales ni terraform.tfstate. Las capturas son originales, con recortes/redacciones para privacidad.
+La salida de Kubernetes se verifica en S07; no se fabrica una captura literal. La aplicación Kubernetes con backend S3 no fue ejecutada como una sola operación; se probó por separado. No se declara producción ni nota.
+Asistencia IA declarada; revisar contenido antes de enviar.
+
+GitHub: índice final y extractos de logs publicados en PR #15 (pendiente de revisiones y fusión):
+https://github.com/silvadaniel-mac/equipo-02--MIDAMA/pull/15
+Los binarios Word/PPT y las capturas de este ZIP no fueron transferidos al repositorio mediante el conector. Para incorporarlos, usar la rama docs/entrega-final-s18 y las carpetas docs/presentaciones/ y docs/evidencias/cierre/; mantener la protección de ramas y las revisiones reales. El ZIP académico contiene todos los archivos preparados, independientemente de la fusión del PR.
