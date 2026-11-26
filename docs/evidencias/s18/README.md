@@ -28,3 +28,6 @@ SAST [run 45739331906](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/acti
 
 ### Quinta iteración observada y corrección arquitectónica
 [Run 45743143698](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45743143698), SHA 9791532: 39/40, único fallo 1810 con llm-rejected; academic-lab aprobado. S05, S07, S08 y [S10](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45743143753) aprobados. La solución híbrida no obliga al LLM a decidir coincidencias literales: el código ejecuta la búsqueda exacta, y el modelo sigue decidiendo las 19 consultas temáticas. El gate end-to-end continúa en 40/40 y se reportan por separado las rutas literal y semántica. Los fallos históricos del modelo permanecen visibles. No equivale a aprobar 40/40 mediante un LLM puro. Verificar el nuevo SHA.
+
+## Cierre aprobado en main
+[Resultados definitivos, commit 309e3e7](cierre-main.md). Se conservan los fallos históricos como evidencia de mejora; la versión híbrida final supera los 40 casos del sistema, incluidos 19/19 del LLM temático.
