@@ -9,3 +9,5 @@ S10 ampliado: artifacts/academic incluye flujo HTTP contra el pod admitido por K
 
 ### Remediación SAST
 [Run S08 45739071574](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739071574): la regla no-shell-exec detectó cuatro llamadas DatabaseSync.exec de SQLite (DDL y transacciones SQL fijas), no ejecución de shell. Se reemplazaron por sentencias preparadas individuales, conservando transacción y parámetros. No se deshabilitó la regla ni se agregaron excepciones. Verificar nueva ejecución.
+
+SAST [run 45739331906](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739331906) también bloqueó la llamada HTTP directa del experimento FinOps. Se centralizó el transporte local Ollama en una función de loopback fijo, sin redirecciones, sin hostname dinámico, con timeout y sin datos reales. No se desactivó el gate. La conexión HTTP queda limitada a la máquina del runner; producción debe usar TLS y autenticación.

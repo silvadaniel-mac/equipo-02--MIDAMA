@@ -1,11 +1,11 @@
 import {readFile,writeFile} from 'node:fs/promises';
-import {contextPrompt,retrieve} from './tutor.mjs';
+import {contextPrompt,retrieve,requestLocalModel} from './tutor.mjs';
 const model=process.env.S18_OLLAMA_MODEL;
 if(!model)throw Error('S18_OLLAMA_MODEL requerido');
 const golden=JSON.parse(await readFile(new URL('../../docs/ai/golden-set.json',import.meta.url),'utf8'));
 const corpus=golden.materials.map(x=>({...x,id:x.key}));
 async function measure(question,sources){
- const response=await fetch('http://127.0.0.1:11434/api/chat',{method:'POST',headers:{'content-type':'application/json'},signal:AbortSignal.timeout(60000),body:JSON.stringify({model,stream:false,options:{temperature:0,seed:42,num_predict:1,num_ctx:2048},messages:[{role:'user',content:contextPrompt(question,sources)}]})});
+ const response=await requestLocalModel({model,stream:false,options:{temperature:0,seed:42,num_predict:1,num_ctx:2048},messages:[{role:'user',content:contextPrompt(question,sources)}]});
  if(!response.ok)throw Error('Ollama HTTP '+response.status);
  const result=await response.json();
  if(!Number.isInteger(result.prompt_eval_count)||result.prompt_eval_count<=0)throw Error('Sin métrica de tokens');
