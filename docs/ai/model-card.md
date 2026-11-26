@@ -18,3 +18,6 @@ Run [45739533067](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/r
 
 ### Tercera iteración del experimento
 El modelo 1.5B con selección de índice alcanzó 25/40 (5/20 con fuente; 15 abstenciones seguras) en [run 45739894435](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739894435). Se ensaya Qwen2.5 7B y se aclara en español que una consulta temática corta no requiere una pregunta completa. Se incluyen títulos, sin cambiar corpus, preguntas, criterios, guardrails ni modo de evaluación. El servicio por defecto permanece extractivo; no se afirma éxito antes de ejecutar.
+
+### Cuarta iteración: pertinencia en dos etapas
+[Run 45741749563](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45741749563), SHA abe6bbe: Qwen2.5 7B obtuvo 38/40 (18/20 con fuente; dos abstenciones). Se incorpora una segunda decisión de pertinencia binaria únicamente si el modelo devuelve explícitamente índice 0 y existen candidatos recuperados con coincidencias léxicas. El modelo puede volver a rechazar; índices inválidos no habilitan reintentos. La cita sigue siendo determinista del corpus autorizado. Se añade una prueba de ambos resultados, más diagnóstico de casos fallidos en logs. Golden set y gate 40/40 intactos. No se afirma que los cambios aprueben antes de ejecutar.

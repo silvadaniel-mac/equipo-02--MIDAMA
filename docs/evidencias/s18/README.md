@@ -19,3 +19,6 @@ SAST [run 45739331906](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/acti
 
 ### Segunda iteración y siguiente hipótesis
 [Run 45739894435](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739894435), SHA 0362644: integración 6/6, 95,77% líneas, extractivo 40/40, Ragas precisión 0,9999999999 y recall 1,0, 100/100 probes, RTO 5,98 ms, RPO 6 ms. El LLM 1.5B alcanzó 25/40 (5/20 con fuente, 15 abstenciones seguras). [S10 45739894346](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739894346) completó con éxito; [S07](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739902438) y [S08](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45739902371) también. Se ensaya 7B con prompt temático en español, sin modificar la evaluación.
+
+### Tercera iteración observada
+[Run 45741749563](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45741749563), SHA abe6bbe: academic-lab aprobado; LLM 7B 38/40, 18/20 con fuente, 8/8 fuera de contexto, 6/6 guardrails, 6/6 aislamiento. p95 5839,35 ms. El gate falló y el resultado se conserva. Se ensaya revisión binaria de pertinencia tras abstención explícita, sin modificar casos ni umbral. Los logs posteriores mostrarán diagnósticos de casos sintéticos fallidos.
