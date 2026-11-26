@@ -1,0 +1,22 @@
+Extractos de logs reales, run 45756742436. No son salidas simuladas.
+https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45756742436
+
+academic-lab
+2026-11-26T04:41:00.8305539Z ℹ tests 9
+2026-11-26T04:41:00.8306231Z ℹ pass 9
+2026-11-26T04:41:00.8316611Z ℹ all files    |  96.57 |    79.05 |   87.80 | 
+2026-11-26T04:41:01.0056439Z   "passed": 40,
+2026-11-26T04:41:01.0056695Z   "total": 40,
+2026-11-26T04:41:42.6350757Z   "mean_context_precision": 0.9999999999,
+2026-11-26T04:41:42.6351137Z   "mean_context_recall": 1.0,
+2026-11-26T04:41:46.0234510Z     "good": 100,
+2026-11-26T04:41:46.0237315Z     "rtoMs": 9.3,
+2026-11-26T04:41:46.0237583Z     "rpoMs": 27,
+
+llm-experiment
+2026-11-26T04:44:07.7483296Z   "passed": 40,
+2026-11-26T04:44:07.7483623Z   "total": 40,
+2026-11-26T04:45:50.0053329Z     "full": 1005,
+2026-11-26T04:45:50.0053699Z     "selected": 361,
+2026-11-26T04:45:50.0054078Z     "duplicated": 522,
+2026-11-26T04:45:50.0054503Z     "deduplicated": 361

@@ -113,3 +113,5 @@ El staging es temporal y desaparece con el runner. Los endpoints académicos aú
 [Documentación final y matriz de la rúbrica](docs/DEFENSA-S18.md) · [Evidencias reproducibles](docs/evidencias/s18/README.md). S18 añade un servicio académico local separado; el alcance del servidor histórico no cambia.
 
 [Resultados finales validados en main y evidencias S18](docs/evidencias/s18/cierre-main.md).
+
+[Cierre final S18, roles y evidencias CI verificadas](docs/evidencias/cierre/README.md).

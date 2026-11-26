@@ -28,3 +28,6 @@ El repositorio externo [equipo-02-gitops](https://github.com/silvadaniel-mac/equ
 
 ## Revalidación final
 Los cinco workflows sobre f61eb33 aprobaron: [S05](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45751184380), [S07](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45751184474), [S08](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45751184545), [S10](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45751184487), [S18](https://github.com/silvadaniel-mac/equipo-02--MIDAMA/actions/runs/45751184390).
+
+## Último corte 76c5005
+Los cinco workflows aprobaron. GitOps PR #3 recibió dos aprobaciones y se fusionó en b650388; [validación posterior](https://github.com/silvadaniel-mac/equipo-02-gitops/actions/runs/45757708616). [Índice de cierre y extractos reales de CI](../cierre/README.md).
