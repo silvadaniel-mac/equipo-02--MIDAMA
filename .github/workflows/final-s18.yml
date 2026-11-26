@@ -1,0 +1,35 @@
+name: AulaViva S18 academic lab
+on:
+  pull_request:
+  push:
+    branches: [main, 'feature/s18-final-defense']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  academic-lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Integration tests and useful coverage
+        run: |
+          set -o pipefail
+          node --test --experimental-test-coverage services/s18/integration.test.mjs | tee docs/evidencias/s18/integration-tap.txt
+      - name: Golden set baseline
+        run: node services/s18/evaluate.mjs
+      - name: Availability and recovery exercise
+        run: node services/s18/operations.mjs
+      - name: End-to-end demo
+        run: |
+          set -o pipefail
+          node services/s18/demo.mjs | tee docs/evidencias/s18/demo-local.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s18-academic-lab-${{ github.sha }}
+          path: docs/evidencias/s18/
+          retention-days: 90
