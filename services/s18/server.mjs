@@ -26,7 +26,11 @@ function auth(header,secret) {
 export function createAcademicServer({dbPath=':memory:',secret,model=''}={}) {
   if(typeof secret!=='string'||Buffer.byteLength(secret)<32)throw Error('S18_SECRET requiere al menos 32 bytes');
   const db=new DatabaseSync(dbPath);
-  db.exec('PRAGMA foreign_keys=ON; PRAGMA busy_timeout=3000; CREATE TABLE IF NOT EXISTS content (school TEXT NOT NULL, course TEXT NOT NULL, id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT, fileUrl TEXT NOT NULL, createdAt TEXT NOT NULL); CREATE INDEX IF NOT EXISTS content_scope ON content(school,course,id); CREATE TABLE IF NOT EXISTS idem (scope TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, body TEXT NOT NULL, location TEXT NOT NULL, expires INTEGER NOT NULL);');
+  db.prepare('PRAGMA foreign_keys=ON').run();
+  db.prepare('PRAGMA busy_timeout=3000').run();
+  db.prepare('CREATE TABLE IF NOT EXISTS content (school TEXT NOT NULL, course TEXT NOT NULL, id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT, fileUrl TEXT NOT NULL, createdAt TEXT NOT NULL)').run();
+  db.prepare('CREATE INDEX IF NOT EXISTS content_scope ON content(school,course,id)').run();
+  db.prepare('CREATE TABLE IF NOT EXISTS idem (scope TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, body TEXT NOT NULL, location TEXT NOT NULL, expires INTEGER NOT NULL)').run();
   const getContents=(school,course)=>db.prepare('SELECT id,title,description,fileUrl,createdAt FROM content WHERE school=? AND course=? ORDER BY id').all(school,course).map(({description,...row})=>description===null?row:{...row,description});
   const server=http.createServer(async(req,res)=>{
     const trace=randomUUID(); let path='/';
@@ -76,12 +80,12 @@ export function createAcademicServer({dbPath=':memory:',secret,model=''}={}) {
       }
       prior=findPrior();if(prior)return replay(prior);
       const location=path+'/'+result.id;
-      db.exec('BEGIN IMMEDIATE');
+      db.prepare('BEGIN IMMEDIATE').run();
       try{
         if(resource==='content')db.prepare('INSERT INTO content VALUES (?,?,?,?,?,?,?)').run(school,course,result.id,result.title,result.description??null,result.fileUrl,result.createdAt);
         db.prepare('DELETE FROM idem WHERE expires<=?').run(Date.now());
-        db.prepare('INSERT INTO idem VALUES (?,?,?,?,?)').run(scope,hash,JSON.stringify(result),location,Date.now()+86400000);db.exec('COMMIT');
-      }catch(e){db.exec('ROLLBACK');throw e;}
+        db.prepare('INSERT INTO idem VALUES (?,?,?,?,?)').run(scope,hash,JSON.stringify(result),location,Date.now()+86400000);db.prepare('COMMIT').run();
+      }catch(e){db.prepare('ROLLBACK').run();throw e;}
       return send(201,result,location);
     }catch{if(!res.headersSent)fail(503,'Service unavailable','Servicio temporalmente no disponible.');else res.end();}
   });
